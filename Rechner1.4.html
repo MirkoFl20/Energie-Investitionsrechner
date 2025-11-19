@@ -1,0 +1,2267 @@
+<!DOCTYPE html>
+<html lang="de" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energie-Investitionsrechner</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-gray-100 dark:bg-gray-900 transition-colors duration-300;
+        }
+        [x-cloak] {
+            display: none !important;
+        }
+        /* Hide number input spinners for a cleaner look */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .action-btn.active {
+            @apply bg-sky-600 text-white border-sky-600 dark:bg-sky-500 dark:border-sky-500 shadow-inner;
+        }
+        /* Custom styles for the range slider */
+        input[type="range"]::-webkit-slider-thumb {
+            @apply w-5 h-5 bg-sky-600 rounded-full cursor-pointer appearance-none transition-transform duration-150 ease-in-out;
+        }
+        input[type="range"]:hover::-webkit-slider-thumb {
+             @apply scale-110;
+        }
+        input[type="range"]::-moz-range-thumb {
+            @apply w-5 h-5 bg-sky-600 rounded-full cursor-pointer border-none transition-transform duration-150 ease-in-out;
+        }
+         input[type="range"]:hover::-moz-range-thumb {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex items-center justify-center min-h-screen">
+    <main class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 sm:p-8 max-w-4xl w-full mx-auto space-y-8 transition-colors duration-300 border border-gray-200 dark:border-gray-700">
+        
+        <!-- Header with Dark Mode Toggle and Reset Button -->
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white">Energie-Investitionsrechner</h1>
+            <div class="flex items-center space-x-2">
+                <button id="resetButton" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" title="Eingaben zurücksetzen">
+                    <!-- Reset Icon SVG -->
+                    <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0l3.181-3.183m-11.664 0l4.992-4.993m-4.993 0l-3.181 3.183a8.25 8.25 0 000 11.664l3.181 3.183" />
+                    </svg>
+                </button>
+                <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors">
+                    <!-- SVG for light mode icon -->
+                    <svg id="sunIcon" class="w-6 h-6 text-gray-500 dark:text-gray-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <!-- SVG for dark mode icon -->
+                    <svg id="moonIcon" class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Calculator Section -->
+        <section class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Cost Input -->
+                <div class="relative">
+                    <label for="totalCost" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Investitionskosten Photovoltaik</label>
+                    <div class="mt-1 relative rounded-lg shadow-sm">
+                        <input type="text" id="totalCost" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300 placeholder-gray-400" placeholder="z.B. 25.000 €">
+                    </div>
+                </div>
+                 <!-- Heat Pump System Cost Input -->
+                <div class="relative">
+                    <label for="heatPumpSystemCost" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Investitionskosten Heizsystem</label>
+                    <div class="mt-1 relative rounded-lg shadow-sm">
+                        <input type="text" id="heatPumpSystemCost" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300 placeholder-gray-400" placeholder="z.B. 20.000 €">
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Savings Input -->
+                <div class="relative">
+                    <div class="flex items-center space-x-2 mb-1">
+                        <label for="annualSavings" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jährliche Ersparnis Strom</label>
+                        <div class="relative group">
+                            <svg class="w-5 h-5 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                            <div class="absolute bottom-full mb-2 w-72 bg-gray-800 text-white text-xs rounded-lg py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2">
+                                <strong>Ersparnis durch die PV-Anlage.</strong> Sie ergibt sich aus Ihren <strong>alten Stromkosten</strong>, minus den Kosten für den <strong>noch zusätzlichen Netzbezug</strong>, plus den Einnahmen für den <strong>eingespeisten Strom</strong>.
+                                <svg class="absolute text-gray-800 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="relative rounded-lg shadow-sm flex items-center space-x-2">
+                        <input type="text" id="annualSavings" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300 placeholder-gray-400" placeholder="z.B. 800 €">
+                        <div id="annualSavingsComparison" class="hidden text-red-500 dark:text-red-400 font-bold flex items-center whitespace-nowrap">
+                            <span class="text-xl">→</span>
+                            <span id="annualSavingsScenario" class="ml-1">--</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Electricity Price Input -->
+                <div class="relative">
+                    <div class="flex items-center space-x-2 mb-1">
+                        <label for="effectivePrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Effektiver Strompreis</label>
+                         <div class="relative group">
+                            <svg class="w-5 h-5 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                            <div class="absolute bottom-full mb-2 w-72 bg-gray-800 text-white text-xs rounded-lg py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2">
+                                Ihr Durchschnittspreis pro kWh. Er berechnet sich aus den Gesamtkosten (Netzbezug & Eigenstrom) minus Einspeiseerlösen, geteilt durch den Gesamtverbrauch.
+                                <svg class="absolute text-gray-800 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative rounded-lg shadow-sm">
+                        <input type="text" id="effectivePrice" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300 placeholder-gray-400" placeholder="z.B. 0,10 €/kWh">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Financing Section -->
+        <section x-data="{ open: false }" class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 border border-gray-200 dark:border-gray-600 transition-all duration-300">
+            <button @click="open = !open" class="flex justify-between items-center w-full focus:outline-none text-gray-700 dark:text-gray-300">
+                <span class="font-semibold text-lg">
+                    Berechnung mit Finanzierung
+                </span>
+                <svg :class="{'rotate-180': open}" class="w-6 h-6 transform transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div x-show="open" x-transition x-cloak class="mt-6 space-y-8 text-gray-700 dark:text-gray-300">
+                
+                <!-- Financing Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Zu finanzierende Investitionen</label>
+                    <div id="financeSelectionButtons" class="grid grid-cols-2 gap-2">
+                        <button data-value="pv" class="action-btn border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-center transition-all duration-200 flex justify-center items-center">
+                            <span class="mr-2">Photovoltaik</span>
+                            <svg class="w-5 h-5 text-green-400 hidden checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <button data-value="hp" class="action-btn border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-center transition-all duration-200 flex justify-center items-center">
+                            <span class="mr-2">Heizsystem</span>
+                            <svg class="w-5 h-5 text-green-400 hidden checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loan Amount Slider -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <label for="loanAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Wunschbetrag</label>
+                        <p class="text-xs text-gray-500">(Nettodarlehensbetrag)</p>
+                        <p id="loanAmountDisplay" class="text-3xl font-bold text-sky-600 dark:text-sky-400 mt-2">--</p>
+                    </div>
+                    <div class="pt-8">
+                         <input type="range" id="loanAmount" min="0" max="75000" step="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600">
+                    </div>
+                </div>
+
+                <!-- Loan Term Buttons -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Laufzeit <span class="text-xs text-gray-500">(in Monaten)</span></label>
+                    <div id="loanTermButtons" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button data-value="60" class="action-btn border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-center transition-all duration-200 flex justify-center items-center">
+                            <span class="mr-2">60</span>
+                            <svg class="w-5 h-5 text-green-400 hidden checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button data-value="120" class="action-btn border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-center transition-all duration-200 flex justify-center items-center">
+                            <span class="mr-2">120</span>
+                             <svg class="w-5 h-5 text-green-400 hidden checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button data-value="180" class="action-btn border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-center transition-all duration-200 flex justify-center items-center">
+                            <span class="mr-2">180</span>
+                             <svg class="w-5 h-5 text-green-400 hidden checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button data-value="240" class="action-btn border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-center transition-all duration-200 flex justify-center items-center">
+                            <span class="mr-2">240</span>
+                             <svg class="w-5 h-5 text-green-400 hidden checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interest Rate and Monthly Rate Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 text-center">
+                        <label for="effectiveAnnualInterestRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Eff. Jahreszins</label>
+                        <div class="relative mt-2">
+                             <input type="text" id="effectiveAnnualInterestRate" class="text-2xl font-bold bg-transparent border-none text-center w-full focus:outline-none focus:ring-0 text-sky-600 dark:text-sky-400" value="4,29 %">
+                        </div>
+                    </div>
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 text-center">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Monatsrate</label>
+                        <p id="monthlyRateDisplay" class="mt-2 text-2xl font-bold text-sky-600 dark:text-sky-400">--</p>
+                    </div>
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 text-center">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Davon Zinskosten <span class="text-xs text-gray-500">(monatlich)</span></label>
+                        <p id="monthlyInterestCostDisplay" class="mt-2 text-2xl font-bold text-sky-600 dark:text-sky-400">--</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- E-Mobility Section -->
+        <section x-data="{ open: false }" class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 border border-gray-200 dark:border-gray-600 transition-all duration-300">
+            <button @click="open = !open" class="flex justify-between items-center w-full focus:outline-none text-gray-700 dark:text-gray-300">
+                <span class="font-semibold text-lg">
+                    Berechnung für Elektromobilität
+                </span>
+                <svg :class="{'rotate-180': open}" class="w-6 h-6 transform transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div x-show="open" x-transition x-cloak class="mt-4 space-y-4 text-gray-700 dark:text-gray-300">
+                <p class="text-sm font-medium">Grundlagen der Preisberechnung:</p>
+                <ul class="text-xs list-disc space-y-1 pl-6">
+                    <li>Benzin: Durchschnittspreis von 1,75€/Liter (7,7 L pro 100km)</li>
+                    <li>Diesel: Durchschnittspreis von 1,55€/Liter (7,0 L pro 100km)</li>
+                    <li>Elektroauto: Mit Ihrem effektiven Strompreis <span id="effectivePriceDisplay2"></span> (15 kWh pro 100km)</li>
+                </ul>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Mileage Input -->
+                    <div class="relative">
+                        <label for="mileage" class="block text-sm font-medium">Jährliche Laufleistung</label>
+                        <div class="mt-1 relative rounded-lg shadow-sm">
+                            <input type="text" id="mileage" min="0" class="block w-full px-4 py-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300" placeholder="z.B. 15.000 km">
+                        </div>
+                    </div>
+                    
+                    <!-- EV kWh Consumption Input -->
+                    <div class="relative">
+                        <label for="evKwhConsumption" class="block text-sm font-medium">Jährlicher kWh-Verbrauch Elektrofahrzeug</label>
+                        <div class="mt-1 relative rounded-lg shadow-sm">
+                            <input type="text" id="evKwhConsumption" min="0" class="block w-full px-4 py-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300" placeholder="z.B. 2.250 kWh">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fuel Type Selection -->
+                <div class="flex flex-col space-y-2">
+                    <span class="text-sm font-medium">Aktueller Energieträger:</span>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <input type="radio" id="fuel-petrol" name="fuel" value="petrol" checked class="form-radio text-sky-600 focus:ring-sky-500 h-4 w-4">
+                            <label for="fuel-petrol" class="ml-2 text-sm">Benzin</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="fuel-diesel" name="fuel" value="diesel" class="form-radio text-sky-600 focus:ring-sky-500 h-4 w-4">
+                            <label for="fuel-diesel" class="ml-2 text-sm">Diesel</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E-Mobility Results -->
+                <div class="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Ihre aktuellen Kraftstoffkosten: <span id="fossilCost" class="font-bold text-gray-900 dark:text-white">--</span>
+                        <span id="fossilCostComparison" class="hidden text-red-500 dark:text-red-400 font-bold ml-2 inline-flex items-baseline">→ <span id="fossilCostScenario" class="ml-1">--</span></span>
+                    </p>
+                    <div class="flex items-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Ladekosten für Elektrofahrzeug: <span id="eMobilityCost" class="font-bold text-gray-900 dark:text-white ml-1">--</span>
+                        <div class="relative group ml-2">
+                            <svg class="w-5 h-5 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+                            <div class="absolute bottom-full mb-2 w-72 bg-gray-800 text-white text-xs rounded-lg py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2">
+                                Die Stromkosten für das E-Fahrzeug sind bereits in der 'Jährlichen Ersparnis Strom' berücksichtigt.
+                                <svg class="absolute text-gray-800 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            </div>
+                        </div>
+                        <div id="eMobilityCostComparison" class="hidden text-red-500 dark:text-red-400 font-bold ml-auto flex items-center">→ <span id="eMobilityCostScenario">--</span></div>
+                    </div>
+                    <div class="flex items-center text-sm font-medium text-gray-600 dark:text-gray-400">Jährliche Ersparnis Elektrofahrzeug: <span id="eMobilitySavings" class="font-bold text-sky-600 dark:text-sky-400 ml-1">--</span><div id="eMobilitySavingsComparison" class="hidden text-red-500 dark:text-red-400 font-bold ml-2 flex items-center">→ <span id="eMobilitySavingsScenario">--</span></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Heat Pump Section -->
+        <section x-data="{ open: false }" class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 border border-gray-200 dark:border-gray-600 transition-all duration-300">
+            <button @click="open = !open" class="flex justify-between items-center w-full focus:outline-none text-gray-700 dark:text-gray-300">
+                <span class="font-semibold text-lg">
+                    Berechnung Wärmepumpe
+                </span>
+                <svg :class="{'rotate-180': open}" class="w-6 h-6 transform transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div x-show="open" x-transition x-cloak class="mt-4 space-y-4 text-gray-700 dark:text-gray-300">
+                <p class="text-sm font-medium">Grundlagen der Preisberechnung:</p>
+                <ul class="text-xs list-disc space-y-1 pl-6">
+                    <li>Gas: Durchschnittspreis von 0,10€/kWh (1 m³ &#8776; 10 kWh)</li>
+                    <li>Öl: Durchschnittspreis von 0,95€/Liter (1 Liter &#8776; 10 kWh)</li>
+                    <li>Wärmepumpe: Mit Ihrem effektiven Strompreis <span id="effectivePriceDisplay"></span><br>1 kWh Strom erzeugt je nach COP das Vielfache an thermischer Energie (Wärme)</li>
+                    <li>Ein COP-Wert von 4,0 bedeutet, dass Ihre Wärmepumpe aus 1 kWh Strom das 4-fache an Wärmeenergie erzeugt. </li>
+                </ul>
+                
+                <!-- NEW HEAT CONSUMPTION INPUTS -->
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <div class="w-full sm:w-1/2 relative">
+                        <label for="gasConsumption" class="block text-sm font-medium">Jährlicher Gasverbrauch</label>
+                        <div class="mt-1 relative rounded-lg shadow-sm">
+                            <input type="text" id="gasConsumption" class="block w-full px-4 py-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300" placeholder="z.B. 1.500 m³">
+                        </div>
+                    </div>
+                    <div class="w-full sm:w-1/2 relative">
+                        <label for="oilConsumption" class="block text-sm font-medium">Jährlicher Heizölverbrauch</label>
+                        <div class="mt-1 relative rounded-lg shadow-sm">
+                            <input type="text" id="oilConsumption" class="block w-full px-4 py-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300" placeholder="z.B. 1.500 Liter">
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- HP kWh Consumption Input -->
+                    <div class="relative">
+                        <label for="heatPumpKwhConsumption" class="block text-sm font-medium">Jährlicher kWh-Verbrauch Wärmepumpe</label>
+                        <div class="mt-1 relative rounded-lg shadow-sm">
+                            <input type="text" id="heatPumpKwhConsumption" min="0" class="block w-full px-4 py-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300" placeholder="z.B. 5000 kWh">
+                        </div>
+                    </div>
+                    
+                    <!-- Current Heat Source Selection -->
+                    <div>
+                        <p class="text-sm font-medium">Aktueller Energieträger:</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <div class="flex items-center">
+                                <input type="radio" id="heat-gas" name="currentHeatSource" value="gas" checked class="form-radio text-sky-600 focus:ring-sky-500 h-4 w-4">
+                                <label for="heat-gas" class="ml-2 text-sm">Gas</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" id="heat-oil" name="currentHeatSource" value="oil" class="form-radio text-sky-600 focus:ring-sky-500 h-4 w-4">
+                                <label for="heat-oil" class="ml-2 text-sm">Öl</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Planned Heat Pump Selection -->
+                <div class="space-y-4 pt-4">
+                    <p class="text-sm font-medium">Geplante Wärmepumpe:</p>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <input type="radio" id="heat-daikin" name="plannedHeatPump" value="daikin" checked class="form-radio text-sky-600 focus:ring-sky-500 h-4 w-4">
+                            <label for="heat-daikin" class="ml-2 text-sm">Daikin (COP 3.5)</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="heat-stiebel" name="plannedHeatPump" value="stiebel" class="form-radio text-sky-600 focus:ring-sky-500 h-4 w-4">
+                            <label for="heat-stiebel" class="ml-2 text-sm">Stiebel (COP 4.0)</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Heat Pump Results -->
+                <div class="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Ihre aktuellen Heizkosten: <span id="fossilHeatingCost" class="font-bold text-gray-900 dark:text-white">--</span>
+                        <span id="fossilHeatingCostComparison" class="hidden text-red-500 dark:text-red-400 font-bold ml-2 inline-flex items-baseline">→ <span id="fossilCostScenario" class="ml-1">--</span></span>
+                    </p>
+                    <div class="flex items-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Heizkosten mit Wärmepumpe: <span id="heatPumpCost" class="font-bold text-gray-900 dark:text-white ml-1">--</span>
+                        <div class="relative group ml-2">
+                            <svg class="w-5 h-5 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+                            <div class="absolute bottom-full mb-2 w-72 bg-gray-800 text-white text-xs rounded-lg py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2">
+                                Die Stromkosten für die Wärmepumpe sind bereits in der 'Jährlichen Ersparnis Strom' berücksichtigt.
+                                <svg class="absolute text-gray-800 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            </div>
+                        </div>
+                        <div id="heatPumpCostComparison" class="hidden text-red-500 dark:text-red-400 font-bold ml-auto flex items-center">→ <span id="heatPumpCostScenario">--</span></div>
+                    </div>
+                    <div class="flex items-center text-sm font-medium text-gray-600 dark:text-gray-400">Jährliche Ersparnis Wärmepumpe: <span id="heatPumpSavings" class="font-bold text-sky-600 dark:text-sky-400 ml-1">--</span><div id="heatPumpSavingsComparison" class="hidden text-red-500 dark:text-red-400 font-bold ml-2 flex items-center">→ <span id="heatPumpSavingsScenario">--</span></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analysis Sections Grid -->
+        <div class="grid grid-cols-1 gap-8">
+            <!-- Scenario and Demand Analysis Section -->
+            <section x-data="{ open: false }" class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 border border-gray-200 dark:border-gray-600 transition-all duration-300 h-fit">
+                 <button @click="open = !open" class="flex justify-between items-center w-full focus:outline-none text-gray-700 dark:text-gray-300">
+                    <span class="font-semibold text-lg">
+                        Szenario-Analyse
+                    </span>
+                    <svg :class="{'rotate-180': open}" class="w-6 h-6 transform transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div x-show="open" x-transition x-cloak class="mt-6 space-y-6 text-gray-700 dark:text-gray-300">
+                    
+                    <!-- Nested Electricity Demand Section -->
+                    <div x-data="{ open: false }" class="pb-6 border-b border-gray-200 dark:border-gray-600">
+                        <button @click="open = !open" class="flex justify-between items-center w-full focus:outline-none text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                            <span>Strombedarf</span>
+                             <span class="px-3 py-1 text-xs font-semibold rounded-full transition-colors" :class="open ? 'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-300' : 'bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-300'" x-text="open ? 'Verbergen' : 'Anzeigen'">
+                            </span>
+                        </button>
+                        <div x-show="open" x-transition x-cloak class="mt-6 space-y-6">
+                            <!-- Household Electricity -->
+                            <div class="relative">
+                                <label for="householdElectricity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Haushaltsstrom</label>
+                                <div class="mt-1 relative rounded-lg shadow-sm">
+                                    <input type="text" id="householdElectricity" class="block w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300 placeholder-gray-400" placeholder="z.B. 4.500 kWh">
+                                </div>
+                            </div>
+                            
+                            <!-- EV Electricity (Conditional) -->
+                            <div id="evElectricityContainer" class="relative hidden">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Elektrisches Fahrzeug</label>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">(wird aus der jährlichen Laufleistung übernommen)</p>
+                                <div class="mt-1 relative rounded-lg shadow-sm">
+                                     <p id="evElectricityDisplay" class="block w-full px-4 py-3 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 text-base">--</p>
+                                </div>
+                            </div>
+            
+                            <!-- Heat Pump Electricity (Conditional) -->
+                            <div id="heatPumpElectricityContainer" class="relative hidden">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Wärmepumpe Strombedarf</label>
+                                  <p class="text-xs text-gray-500 dark:text-gray-400">(wird aus dem Verbrauch berechnet)</p>
+                                <div class="mt-1 relative rounded-lg shadow-sm">
+                                      <p id="heatPumpElectricityDisplay" class="block w-full px-4 py-3 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 text-base">--</p>
+                                </div>
+                            </div>
+                            
+                             <!-- Total Demand -->
+                            <div id="totalDemandContainer" class="hidden pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <div class="flex justify-between items-center text-base font-bold text-gray-800 dark:text-white">
+                                    <span>Gesamtstrombedarf:</span>
+                                    <span id="totalElectricityDemandDisplay">-- kWh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Calculation Toggles -->
+                    <div class="space-y-6">
+                        <div class="space-y-4">
+                            <label for="includeFinancingToggle" class="flex justify-between items-center cursor-pointer text-sm text-gray-600 dark:text-gray-400">
+                                <span>Finanzierung einrechnen</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="includeFinancingToggle" class="sr-only peer">
+                                    <div class="w-10 h-6 bg-gray-300 rounded-full shadow-inner peer-checked:bg-green-500 transition-colors"></div>
+                                    <div class="absolute w-4 h-4 bg-white rounded-full shadow transform transition-transform top-1 left-1 peer-checked:translate-x-4"></div>
+                                </div>
+                            </label>
+                             <label for="useAlternativePriceToggle" class="flex justify-between items-center cursor-pointer text-sm text-gray-600 dark:text-gray-400">
+                                <span>Alternativen Effektiven Strompreis einrechnen</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="useAlternativePriceToggle" class="sr-only peer">
+                                    <div class="w-10 h-6 bg-gray-300 rounded-full shadow-inner peer-checked:bg-sky-500 transition-colors"></div>
+                                    <div class="absolute w-4 h-4 bg-white rounded-full shadow transform transition-transform top-1 left-1 peer-checked:translate-x-4"></div>
+                                </div>
+                            </label>
+                        </div>
+    
+                        <div id="alternativePriceContainer" class="relative hidden">
+                           <div class="relative rounded-lg shadow-sm">
+                                <input type="text" id="alternativePrice" class="block w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300" placeholder="Alternativer Strompreis z.B. 0,30 €/kWh">
+                           </div>
+                       </div>
+    
+                        <div x-data="{ priceIncreaseActive: false }" class="pt-4 border-t border-gray-200 dark:border-gray-600">
+                            <label for="includePriceIncreaseToggle" class="flex justify-between items-center cursor-pointer text-sm text-gray-600 dark:text-gray-400">
+                                <span>Preissteigerung fossiler Energien einrechnen
+                                    <div class="relative group inline-block align-middle ml-1">
+                                        <svg class="w-5 h-5 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+                                        <div class="absolute bottom-full mb-2 w-72 bg-gray-800 text-white text-xs rounded-lg py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2">
+                                            Simuliert eine jährliche, prozentuale Preissteigerung für fossile Energien. Dies verkürzt die Amortisationszeit und erhöht die Rendite.
+                                            <svg class="absolute text-gray-800 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                                        </div>
+                                    </div>
+                                </span>
+                                <div class="relative">
+                                    <input type="checkbox" id="includePriceIncreaseToggle" class="sr-only peer" x-model="priceIncreaseActive">
+                                    <div class="w-10 h-6 bg-gray-300 rounded-full shadow-inner peer-checked:bg-green-500 transition-colors"></div>
+                                    <div class="absolute w-4 h-4 bg-white rounded-full shadow transform transition-transform top-1 left-1 peer-checked:translate-x-4"></div>
+                                </div>
+                            </label>
+                            
+                            <div id="priceIncreaseContainer" x-show="priceIncreaseActive" x-transition x-cloak class="pt-6 mt-4 border-t border-gray-200 dark:border-gray-600">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    <!-- Column 1: Vehicle -->
+                                    <div>
+                                        <label for="fossilVehicleIncrease" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Preissteigerung Kraftstoff p.a.</label>
+                                        <p id="vehicleIncreaseDisplay" class="text-lg font-bold text-sky-600 dark:text-sky-400 mt-1">0,0 %</p>
+                                        <div class="pt-6">
+                                            <input type="range" id="fossilVehicleIncrease" min="0" max="100" step="0.1" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600">
+                                        </div>
+                                    </div>
+                                    <!-- Column 2: Heating -->
+                                    <div>
+                                        <label for="fossilHeatingIncrease" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Preissteigerung Heizkosten p.a.</label>
+                                        <p id="heatingIncreaseDisplay" class="text-lg font-bold text-sky-600 dark:text-sky-400 mt-1">0,0 %</p>
+                                        <div class="pt-6">
+                                            <input type="range" id="fossilHeatingIncrease" min="0" max="100" step="0.1" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Results Section -->
+        <section class="bg-sky-500/10 dark:bg-sky-500/20 p-6 rounded-2xl border border-sky-500/20 dark:border-sky-500/30 transition-colors duration-300">
+            <div class="space-y-4">
+                <!-- Main Results -->
+                <div class="flex flex-col sm:flex-row justify-between items-center bg-sky-600 dark:bg-sky-700/80 p-4 rounded-lg shadow-lg text-white">
+                    <div class="flex-1 text-left mb-4 sm:mb-0 w-full">
+                        <div class="flex justify-between items-center">
+                            <p id="paybackYearsLabel" class="text-sm font-medium opacity-80">Amortisationszeit (Photovoltaiksystem)</p>
+                        </div>
+                        <div class="text-xs text-white/90 dark:text-gray-300 mt-2 space-y-0.5">
+                            <p>Photovoltaik: <span id="pvCostDisplay" class="font-medium">--</span></p>
+                            <div class="pt-1 mt-1 border-t border-white/20 dark:border-gray-600">
+                                 <div class="font-bold flex items-baseline">
+                                    <span>Einsparung Stromkosten p.a.:&nbsp;</span>
+                                    <span id="pvSavingsDisplay" class="font-medium">--</span>
+                                    <span id="pvSavingsDifferenceDisplay" class="text-xs text-red-300 ml-2 hidden"></span>
+                                </div>
+                                <p id="pvFinancingCostLine" class="hidden text-red-300">./. Zinskosten p.a.: <span id="pvFinancingCostDisplay" class="font-medium">--</span></p>
+                                <p id="pvNetSavingsLine" class="hidden font-bold border-t border-white/20 pt-1 mt-1">Netto-Ersparnis p.a.: <span id="pvNetSavingsDisplay" class="font-medium text-white">--</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline space-x-2 mt-1">
+                             <p id="paybackYears" class="text-3xl font-bold whitespace-nowrap">--</p>
+                             <div id="pvScenarioComparison" class="hidden text-red-400 font-bold flex items-baseline whitespace-nowrap">
+                                 <span class="text-xl leading-none mx-1">→</span>
+                                 <span id="paybackYearsPvScenario">--</span>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 text-center w-full">
+                        <p class="text-sm font-medium opacity-80">Jährliche Rendite</p>
+                        <div class="flex items-baseline justify-center space-x-2">
+                             <p id="returnRate" class="text-3xl font-bold text-green-400 dark:text-green-400 whitespace-nowrap">--</p>
+                             <div id="returnRatePvScenarioComparison" class="hidden text-red-400 font-bold flex items-baseline whitespace-nowrap">
+                                 <span class="text-xl leading-none mx-1">→</span>
+                                 <span id="returnRatePvScenario">--</span>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Combined Adjusted Results -->
+                <div class="flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white">
+                    <div class="flex-1 text-left mb-4 sm:mb-0 w-full">
+                        <div class="flex justify-between items-center">
+                            <p id="paybackTotalLabel" class="text-sm font-medium text-gray-800 dark:text-white">Amortisationszeit</p>
+                        </div>
+                         <div class="text-xs text-gray-600 dark:text-gray-300 mt-2 space-y-0.5">
+                            <p id="line-totalPvCost">Photovoltaik: <span id="totalPvCostDisplay" class="font-medium">--</span></p>
+                            <p id="line-totalHpCost">Heizsystem: <span id="totalHpCostDisplay" class="font-medium">--</span></p>
+                            <div class="pt-1 mt-1 border-t border-gray-200 dark:border-gray-600">
+                                <div x-data="{ open: false }">
+                                    <button @click="open = !open" class="flex justify-between items-center w-full focus:outline-none py-1">
+                                        <span class="font-bold flex items-baseline"><span id="totalGrossSavingsLabel">Ersparnis p.a.</span>:&nbsp;<span id="totalGrossSavingsDisplay" class="font-medium">--</span><span id="totalSavingsDifferenceDisplay" class="text-xs text-red-500 dark:text-red-400 ml-2 hidden"></span></span>
+                                        <svg :class="{'rotate-180': open}" class="w-4 h-4 transform transition-transform text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    <div x-show="open" x-transition x-cloak class="mt-1 pt-1 pl-4 space-y-1 border-l-2 border-gray-300 dark:border-gray-600">
+                                        <p id="breakdown-line-pv" class="flex items-baseline">Einsparung Stromkosten: <span class="font-medium ml-1" id="breakdownSavingsPv">--</span><span id="breakdownSavingsPvDifferenceDisplay" class="text-xs text-red-500 dark:text-red-400 ml-1 hidden"></span></p>
+                                        <p id="breakdown-line-emobility">Einsparung Kraftstoffkosten: <span class="font-medium" id="breakdownSavingsEmobility">--</span></p>
+                                        <p id="breakdown-line-hp">Einsparung Heizkosten: <span class="font-medium" id="breakdownSavingsHp">--</span></p>
+                                    </div>
+                                </div>
+                                <p id="financingCostLine" class="hidden text-red-600 dark:text-red-400">./. Zinskosten p.a.: <span id="financingCostDisplay" class="font-medium">--</span></p>
+                                <p id="totalNetSavingsLine" class="hidden font-bold border-t border-gray-400 dark:border-gray-500 pt-1 mt-1">Netto-Ersparnis p.a.: <span id="totalNetSavingsDisplay" class="font-medium text-gray-900 dark:text-white">--</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline space-x-2 mt-1">
+                             <p id="paybackYearsTotal" class="text-3xl font-bold whitespace-nowrap">--</p>
+                             <div id="paybackYearsTotalPriceIncrease" class="hidden text-gray-800 dark:text-white font-bold flex items-baseline space-x-1 whitespace-nowrap">
+                                 <span class="text-2xl">→</span>
+                                 <span id="paybackYearsTotalPriceIncreaseValue" class="text-2xl"></span>
+                             </div>
+                             <div id="totalScenarioComparison" class="hidden text-red-500 dark:text-red-400 font-bold flex items-baseline whitespace-nowrap">
+                                 <span class="text-xl leading-none mx-1">→</span>
+                                 <span id="paybackYearsTotalScenario">--</span>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 text-center w-full">
+                        <p class="text-sm font-medium text-gray-800 dark:text-white">Jährliche Rendite</p>
+                        <div class="flex items-baseline justify-center space-x-2">
+                             <p id="totalReturnRate" class="text-3xl font-bold whitespace-nowrap text-green-500">--</p>
+                             <div id="totalReturnRatePriceIncrease" class="hidden text-green-500 font-bold flex items-baseline space-x-1 whitespace-nowrap">
+                                 <span class="text-2xl">→</span>
+                                 <span id="totalReturnRatePriceIncreaseValue" class="text-2xl"></span>
+                             </div>
+                            <div id="returnRateTotalScenarioComparison" class="hidden text-red-500 dark:text-red-400 font-bold flex items-baseline whitespace-nowrap">
+                                 <span class="text-xl leading-none mx-1">→</span>
+                                 <span id="returnRateTotalScenario" class="">--</span>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Visualization Section -->
+        <section class="mt-8 space-y-6">
+            <h2 id="chartTitle" class="text-2xl font-bold text-gray-800 dark:text-white text-center">Visualisierung der Amortisation</h2>
+            <div class="relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700" style="height: 300px;">
+                <canvas id="savingsChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Save Calculation Section -->
+        <section id="saveSection" class="mt-8 space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white text-center">Berechnung speichern</h2>
+            <div class="flex flex-col sm:flex-row items-center gap-4 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                <input type="text" id="calculationName" class="block w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-900 dark:text-white transition-colors duration-300" placeholder="Name für Berechnung">
+                <button id="saveButton" class="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 dark:focus:ring-offset-gray-800 transition-transform transform hover:scale-105 whitespace-nowrap">
+                    <svg class="w-5 h-5 inline-block -mt-1 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03L10.75 11.364V2.75z" />
+                        <path d="M4 14.75a.75.75 0 000 1.5h12a.75.75 0 000-1.5H4z" />
+                    </svg>
+                    Speichern
+                </button>
+            </div>
+            <div id="savedCalculationsList" class="space-y-3">
+                <!-- Saved calculations will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Bottom Reset Button -->
+        <footer class="pt-4 flex justify-center gap-4">
+            <button id="bottomResetButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition-transform transform hover:scale-105">
+                Berechnung zurücksetzen
+            </button>
+        </footer>
+        
+    </main>
+    
+    <!-- Deletion Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8 max-w-sm w-full mx-auto text-center space-y-4 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white">Löschen bestätigen</h3>
+            <p class="text-gray-600 dark:text-gray-300">Möchten Sie diese Berechnung wirklich endgültig löschen?</p>
+            <div class="flex justify-center gap-4 pt-4">
+                <button id="cancelDelete" class="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-bold py-2 px-4 rounded-lg transition-colors">Abbrechen</button>
+                <button id="confirmDelete" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Löschen</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8 max-w-sm w-full mx-auto text-center space-y-4 border border-gray-200 dark:border-gray-700">
+            <h3 id="errorTitle" class="text-xl font-bold text-yellow-500">Hinweis</h3>
+            <p id="errorMessage" class="text-gray-600 dark:text-gray-300"></p>
+            <div class="flex justify-center gap-4 pt-4">
+                <button id="closeErrorModal" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Verstanden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts are moved to the end of body for better performance and to avoid loading errors -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/cdn.min.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let savedCalculations = [];
+            let calculationIdToDelete = null;
+
+            const state = {
+                totalCost: 0,
+                annualSavings: 0,
+                heatPumpSystemCost: 0,
+                effectivePrice: 0,
+                householdElectricity: 0,
+                annualPvGeneration: 0, 
+                loanAmount: 0,
+                effectiveAnnualInterestRate: 4.29,
+                loanTermMonths: 180,
+                mileage: 0,
+                evKwhConsumption: 0,
+                heatPumpKwhConsumption: 0,
+                fossilVehicleIncrease: 0,
+                fossilHeatingIncrease: 0,
+                gasConsumption: 0,
+                oilConsumption: 0,
+                selectedFuelType: 'petrol',
+                currentHeatSource: 'gas',
+                plannedHeatPump: 'daikin',
+                includeFinancing: false,
+                includePriceIncrease: false,
+                financePv: true,
+                financeHp: true,
+                isLoanAmountManual: false,
+                isEvConsumptionManual: false,
+                isHpConsumptionManual: false,
+                useAlternativePrice: false,
+                alternativePrice: 0,
+            };
+            
+            const inputConfigs = {
+                totalCost: { unit: '€', decimals: 0 },
+                annualSavings: { unit: '€', decimals: 0 },
+                heatPumpSystemCost: { unit: '€', decimals: 0 },
+                effectivePrice: { unit: '€/kWh', decimals: 2 },
+                householdElectricity: { unit: 'kWh', decimals: 0 },
+                mileage: { unit: 'km', decimals: 0 },
+                evKwhConsumption: { unit: 'kWh', decimals: 0 },
+                heatPumpKwhConsumption: { unit: 'kWh', decimals: 0 },
+                gasConsumption: { unit: 'm³', decimals: 0 },
+                oilConsumption: { unit: 'Liter', decimals: 0 },
+                effectiveAnnualInterestRate: { unit: '%', decimals: 2, isRate: true },
+                alternativePrice: { unit: '€/kWh', decimals: 2},
+            };
+
+
+            const elements = {
+                inputs: {
+                    totalCost: document.getElementById('totalCost'),
+                    annualSavings: document.getElementById('annualSavings'),
+                    heatPumpSystemCost: document.getElementById('heatPumpSystemCost'),
+                    effectivePrice: document.getElementById('effectivePrice'),
+                    householdElectricity: document.getElementById('householdElectricity'),
+                    loanAmount: document.getElementById('loanAmount'),
+                    effectiveAnnualInterestRate: document.getElementById('effectiveAnnualInterestRate'),
+                    mileage: document.getElementById('mileage'),
+                    evKwhConsumption: document.getElementById('evKwhConsumption'),
+                    heatPumpKwhConsumption: document.getElementById('heatPumpKwhConsumption'),
+                    fossilVehicleIncrease: document.getElementById('fossilVehicleIncrease'),
+                    fossilHeatingIncrease: document.getElementById('fossilHeatingIncrease'),
+                    gasConsumption: document.getElementById('gasConsumption'),
+                    oilConsumption: document.getElementById('oilConsumption'),
+                    alternativePrice: document.getElementById('alternativePrice'),
+                },
+                outputs: {
+                    monthlyRateDisplay: document.getElementById('monthlyRateDisplay'),
+                    monthlyInterestCostDisplay: document.getElementById('monthlyInterestCostDisplay'),
+                    loanAmountDisplay: document.getElementById('loanAmountDisplay'),
+                    effectivePriceDisplay: document.getElementById('effectivePriceDisplay'),
+                    effectivePriceDisplay2: document.getElementById('effectivePriceDisplay2'),
+                    fossilCost: document.getElementById('fossilCost'),
+                    fossilCostComparison: document.getElementById('fossilCostComparison'),
+                    fossilCostScenario: document.getElementById('fossilCostScenario'),
+                    eMobilityCost: document.getElementById('eMobilityCost'),
+                    eMobilitySavings: document.getElementById('eMobilitySavings'),
+                    fossilHeatingCost: document.getElementById('fossilHeatingCost'),
+                    fossilHeatingCostComparison: document.getElementById('fossilHeatingCostComparison'),
+                    fossilHeatingCostScenario: document.getElementById('fossilHeatingCostScenario'),
+                    heatPumpCost: document.getElementById('heatPumpCost'),
+                    heatPumpSavings: document.getElementById('heatPumpSavings'),
+                    paybackYears: document.getElementById('paybackYears'),
+                    returnRate: document.getElementById('returnRate'),
+                    paybackYearsTotal: document.getElementById('paybackYearsTotal'),
+                    totalReturnRate: document.getElementById('totalReturnRate'),
+                    paybackTotalLabel: document.getElementById('paybackTotalLabel'),
+                    chartTitle: document.getElementById('chartTitle'),
+                    pvCostDisplay: document.getElementById('pvCostDisplay'),
+                    pvSavingsDisplay: document.getElementById('pvSavingsDisplay'),
+                    pvSavingsDifferenceDisplay: document.getElementById('pvSavingsDifferenceDisplay'),
+                    pvFinancingCostLine: document.getElementById('pvFinancingCostLine'),
+                    pvFinancingCostDisplay: document.getElementById('pvFinancingCostDisplay'),
+                    pvNetSavingsLine: document.getElementById('pvNetSavingsLine'),
+                    pvNetSavingsDisplay: document.getElementById('pvNetSavingsDisplay'),
+                    totalPvCostDisplay: document.getElementById('totalPvCostDisplay'),
+                    totalHpCostDisplay: document.getElementById('totalHpCostDisplay'),
+                    financingCostLine: document.getElementById('financingCostLine'),
+                    financingCostDisplay: document.getElementById('financingCostDisplay'),
+                    totalGrossSavingsDisplay: document.getElementById('totalGrossSavingsDisplay'),
+                    totalSavingsDifferenceDisplay: document.getElementById('totalSavingsDifferenceDisplay'),
+                    totalGrossSavingsLabel: document.getElementById('totalGrossSavingsLabel'),
+                    totalNetSavingsLine: document.getElementById('totalNetSavingsLine'),
+                    totalNetSavingsDisplay: document.getElementById('totalNetSavingsDisplay'),
+                    lineTotalPvCost: document.getElementById('line-totalPvCost'),
+                    lineTotalHpCost: document.getElementById('line-totalHpCost'),
+                    breakdownSavingsPv: document.getElementById('breakdownSavingsPv'),
+                    breakdownSavingsPvDifferenceDisplay: document.getElementById('breakdownSavingsPvDifferenceDisplay'),
+                    breakdownSavingsHp: document.getElementById('breakdownSavingsHp'),
+                    breakdownSavingsEmobility: document.getElementById('breakdownSavingsEmobility'),
+                    breakdownLinePv: document.getElementById('breakdown-line-pv'),
+                    breakdownLineHp: document.getElementById('breakdown-line-hp'),
+                    breakdownLineEmobility: document.getElementById('breakdown-line-emobility'),
+                    pvScenarioComparison: document.getElementById('pvScenarioComparison'),
+                    paybackYearsPvScenario: document.getElementById('paybackYearsPvScenario'),
+                    returnRatePvScenarioComparison: document.getElementById('returnRatePvScenarioComparison'),
+                    returnRatePvScenario: document.getElementById('returnRatePvScenario'),
+                    totalScenarioComparison: document.getElementById('totalScenarioComparison'),
+                    paybackYearsTotalScenario: document.getElementById('paybackYearsTotalScenario'),
+                    returnRateTotalScenarioComparison: document.getElementById('returnRateTotalScenarioComparison'),
+                    returnRateTotalScenario: document.getElementById('returnRateTotalScenario'),
+                    alternativePriceContainer: document.getElementById('alternativePriceContainer'),
+                    eMobilityCostComparison: document.getElementById('eMobilityCostComparison'),
+                    eMobilityCostScenario: document.getElementById('eMobilityCostScenario'),
+                    eMobilitySavingsComparison: document.getElementById('eMobilitySavingsComparison'),
+                    eMobilitySavingsScenario: document.getElementById('eMobilitySavingsScenario'),
+                    heatPumpCostComparison: document.getElementById('heatPumpCostComparison'),
+                    heatPumpCostScenario: document.getElementById('heatPumpCostScenario'),
+                    heatPumpSavingsComparison: document.getElementById('heatPumpSavingsComparison'),
+                    heatPumpSavingsScenario: document.getElementById('heatPumpSavingsScenario'),
+                    evElectricityContainer: document.getElementById('evElectricityContainer'),
+                    evElectricityDisplay: document.getElementById('evElectricityDisplay'),
+                    heatPumpElectricityContainer: document.getElementById('heatPumpElectricityContainer'),
+                    heatPumpElectricityDisplay: document.getElementById('heatPumpElectricityDisplay'),
+                    totalDemandContainer: document.getElementById('totalDemandContainer'),
+                    totalElectricityDemandDisplay: document.getElementById('totalElectricityDemandDisplay'),
+                    annualSavingsComparison: document.getElementById('annualSavingsComparison'),
+                    annualSavingsScenario: document.getElementById('annualSavingsScenario'),
+                    vehicleIncreaseDisplay: document.getElementById('vehicleIncreaseDisplay'),
+                    heatingIncreaseDisplay: document.getElementById('heatingIncreaseDisplay'),
+                    paybackYearsTotalPriceIncrease: document.getElementById('paybackYearsTotalPriceIncrease'),
+                    paybackYearsTotalPriceIncreaseValue: document.getElementById('paybackYearsTotalPriceIncreaseValue'),
+                    totalReturnRatePriceIncrease: document.getElementById('totalReturnRatePriceIncrease'),
+                    totalReturnRatePriceIncreaseValue: document.getElementById('totalReturnRatePriceIncreaseValue'),
+                },
+                radios: {
+                    fuelType: document.getElementsByName('fuel'),
+                    currentHeatSource: document.getElementsByName('currentHeatSource'),
+                    plannedHeatPump: document.getElementsByName('plannedHeatPump')
+                },
+                toggles: {
+                    includeFinancingToggle: document.getElementById('includeFinancingToggle'),
+                    includePriceIncreaseToggle: document.getElementById('includePriceIncreaseToggle'),
+                    useAlternativePriceToggle: document.getElementById('useAlternativePriceToggle'),
+                },
+                chart: {
+                    canvas: document.getElementById('savingsChart'),
+                    instance: null
+                },
+                theme: {
+                    toggle: document.getElementById('themeToggle'),
+                    sunIcon: document.getElementById('sunIcon'),
+                    moonIcon: document.getElementById('moonIcon')
+                },
+                resetButton: document.getElementById('resetButton'),
+                bottomResetButton: document.getElementById('bottomResetButton'),
+                pdfExportButton: document.getElementById('pdfExportButton'),
+                financing: {
+                    loanTermButtons: document.getElementById('loanTermButtons'),
+                    financeSelectionButtons: document.getElementById('financeSelectionButtons'),
+                },
+                save: {
+                    nameInput: document.getElementById('calculationName'),
+                    saveButton: document.getElementById('saveButton'),
+                    listContainer: document.getElementById('savedCalculationsList')
+                },
+                modal: {
+                    deleteModal: document.getElementById('deleteModal'),
+                    confirmDelete: document.getElementById('confirmDelete'),
+                    cancelDelete: document.getElementById('cancelDelete'),
+                    errorModal: document.getElementById('errorModal'),
+                    errorMessage: document.getElementById('errorMessage'),
+                    errorTitle: document.getElementById('errorTitle'),
+                    closeErrorModal: document.getElementById('closeErrorModal'),
+                }
+            };
+
+            const CONSTANTS = {
+                PETROL_CONSUMPTION_100KM: 7.7,
+                PETROL_PRICE_PER_LITER: 1.75,
+                DIESEL_CONSUMPTION_100KM: 7.0,
+                DIESEL_PRICE_PER_LITER: 1.55,
+                EV_CONSUMPTION_100KM_DEFAULT: 15,
+                GAS_PRICE_PER_KWH: 0.10,
+                OIL_PRICE_PER_LITER: 0.95,
+                KWH_PER_LITER_OIL: 10,
+                KWH_PER_M3_GAS: 10,
+                COP_DAIKIN: 3.5,
+                COP_STIEBEL: 4.0
+            };
+
+            const isDarkMode = () => document.documentElement.classList.contains('dark');
+
+            // --- Number Formatting & Parsing Utilities ---
+            const formatCurrency = (value) => {
+                if (isNaN(value) || value === null || !isFinite(value)) return '--';
+                return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
+            };
+
+            const formatNumber = (value, decimals = 0) => {
+                if (isNaN(value) || value === null || !isFinite(value)) return '--';
+                return new Intl.NumberFormat('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(value);
+            };
+
+            const parseNumber = (value) => {
+                if (typeof value !== 'string' && typeof value !== 'number') return 0;
+                const stringValue = String(value);
+                const cleaned = stringValue.replace(/[^\d,]/g, '').replace(',', '.');
+                return parseFloat(cleaned) || 0;
+            };
+
+            const formatYears = (value) => {
+                if (isNaN(value) || value <= 0) return '--';
+                if (!isFinite(value) || value >= 50) return '> 50 Jahren';
+                return value.toFixed(1).replace('.', ',') + ' Jahren';
+            };
+
+            const formatPercentage = (value) => {
+                if (isNaN(value) || !isFinite(value)) return '--';
+                return value.toFixed(1).replace('.', ',') + ' %';
+            };
+            
+            // --- UI Helper Functions ---
+            const showErrorModal = (message, title = "Hinweis") => {
+                elements.modal.errorMessage.textContent = message;
+                elements.modal.errorTitle.textContent = title;
+                elements.modal.errorModal.classList.remove('hidden');
+            };
+
+            const updateFinanceSelectionButtons = () => {
+                const buttons = elements.financing.financeSelectionButtons.querySelectorAll('.action-btn');
+                buttons.forEach(btn => {
+                    const value = btn.dataset.value;
+                    const checkmark = btn.querySelector('.checkmark');
+                    let isActive = false;
+                    if (value === 'pv') isActive = state.financePv;
+                    if (value === 'hp') isActive = state.financeHp;
+
+                    if (isActive) {
+                        btn.classList.add('active');
+                        checkmark.classList.remove('hidden');
+                    } else {
+                        btn.classList.remove('active');
+                        checkmark.classList.add('hidden');
+                    }
+                });
+            };
+
+            const updateLoanTermButtons = () => {
+                const buttons = elements.financing.loanTermButtons.querySelectorAll('.action-btn');
+                buttons.forEach(btn => {
+                    const checkmark = btn.querySelector('.checkmark');
+                    const isActive = parseInt(btn.dataset.value) === state.loanTermMonths;
+                    if (isActive) {
+                        btn.classList.add('active');
+                        checkmark.classList.remove('hidden');
+                    } else {
+                        btn.classList.remove('active');
+                        checkmark.classList.add('hidden');
+                    }
+                });
+            };
+            
+            const updateLoanAmount = () => {
+                if (state.isLoanAmountManual) return;
+                let calculatedLoanAmount = 0;
+                if (state.financePv) calculatedLoanAmount += state.totalCost;
+                if (state.financeHp) calculatedLoanAmount += state.heatPumpSystemCost;
+                state.loanAmount = calculatedLoanAmount;
+            };
+
+            // --- Calculation Functions ---
+            const calculateFinancing = () => {
+                const principal = state.loanAmount;
+                const loanTermMonths = state.loanTermMonths;
+                const annualInterestRate = state.effectiveAnnualInterestRate / 100;
+                const monthlyInterestRate = annualInterestRate / 12;
+                
+                let monthlyRate = 0;
+                if (principal > 0 && loanTermMonths > 0) {
+                    if (monthlyInterestRate > 0) {
+                        monthlyRate = principal * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, loanTermMonths)) / (Math.pow(1 + monthlyInterestRate, loanTermMonths) - 1);
+                    } else {
+                        monthlyRate = principal / loanTermMonths;
+                    }
+                }
+
+                const annualFinancingPayment = monthlyRate * 12;
+                const totalPayment = monthlyRate * loanTermMonths;
+                const totalInterest = totalPayment > principal ? totalPayment - principal : 0;
+                const monthlyInterestCost = loanTermMonths > 0 ? totalInterest / loanTermMonths : 0;
+                const annualInterestCost = monthlyInterestCost * 12;
+
+                return { monthlyRate, annualFinancingPayment, monthlyInterestCost, annualInterestCost };
+            };
+
+            const calculateEMobility = (priceOverride) => {
+                const effectivePrice = priceOverride !== undefined ? priceOverride : state.effectivePrice;
+                let fossilCost = 0;
+                const eMobilityCost = state.evKwhConsumption * effectivePrice;
+
+                if (state.selectedFuelType === 'petrol') {
+                    fossilCost = (state.mileage / 100) * CONSTANTS.PETROL_CONSUMPTION_100KM * CONSTANTS.PETROL_PRICE_PER_LITER;
+                } else if (state.selectedFuelType === 'diesel') {
+                    fossilCost = (state.mileage / 100) * CONSTANTS.DIESEL_CONSUMPTION_100KM * CONSTANTS.DIESEL_PRICE_PER_LITER;
+                }
+                const eMobilitySavings = fossilCost - eMobilityCost;
+
+                return { fossilCost, eMobilityCost, eMobilitySavings };
+            };
+
+            const calculateHeatPump = (priceOverride) => {
+                const effectivePrice = priceOverride !== undefined ? priceOverride : state.effectivePrice;
+                
+                let heatConsumption = 0;
+                if (state.currentHeatSource === 'gas') {
+                    heatConsumption = state.gasConsumption * CONSTANTS.KWH_PER_M3_GAS;
+                } else if (state.currentHeatSource === 'oil') {
+                    heatConsumption = state.oilConsumption * CONSTANTS.KWH_PER_LITER_OIL;
+                }
+
+                let fossilHeatingCost = 0;
+                if (state.currentHeatSource === 'gas') {
+                    fossilHeatingCost = heatConsumption * CONSTANTS.GAS_PRICE_PER_KWH;
+                } else if (state.currentHeatSource === 'oil') {
+                    fossilHeatingCost = state.oilConsumption * CONSTANTS.OIL_PRICE_PER_LITER;
+                }
+
+                let cop = (state.plannedHeatPump === 'daikin') ? CONSTANTS.COP_DAIKIN : CONSTANTS.COP_STIEBEL;
+                
+                const calculatedElectricityDemand = (cop > 0 && heatConsumption > 0) ? (heatConsumption / cop) : 0;
+                const electricityDemand = state.heatPumpKwhConsumption;
+
+                let heatPumpCost = electricityDemand * effectivePrice;
+                const heatPumpSavings = fossilHeatingCost - heatPumpCost;
+
+                return { fossilHeatingCost, heatPumpCost, heatPumpSavings, electricityDemand, calculatedElectricityDemand };
+            };
+
+            
+            const calculateDynamicAmortization = (config) => {
+                const {
+                    investmentCost,
+                    annualFinancingCost,
+                    usePV,
+                    useEMobility,
+                    useHeatPump,
+                    generateChartData = false,
+                    priceOverride,
+                    pvSavingsOverride,
+                    forceNoPriceIncrease = false
+                } = config;
+                
+                if (investmentCost <= 0) {
+                    return { yearsToPayback: 0, chartData: [], initialNetSavings: 0, initialGrossSavings: 0 };
+                }
+
+                let cumulativeNetSavings = 0;
+                const chartData = [];
+                let paybackYear = NaN;
+                const maxYears = 51; // Calculate up to 51 years to show > 50
+                
+                if (generateChartData) {
+                    chartData.push({ year: 0, cumulativeSavings: 0 });
+                }
+
+                let initialGrossSavings = 0;
+                
+                const usePriceIncreaseLogicForYear1 = state.includePriceIncrease && !forceNoPriceIncrease;
+
+                if (usePV) {
+                    initialGrossSavings += (pvSavingsOverride !== undefined ? pvSavingsOverride : state.annualSavings);
+                }
+                if (useEMobility) {
+                    const emobilityResults = calculateEMobility(priceOverride);
+                    let fossilCostYear1 = emobilityResults.fossilCost;
+                    if (usePriceIncreaseLogicForYear1) {
+                         fossilCostYear1 *= (1 + state.fossilVehicleIncrease / 100);
+                    }
+                    initialGrossSavings += fossilCostYear1;
+                }
+                if (useHeatPump) {
+                    const heatPumpResults = calculateHeatPump(priceOverride);
+                    let fossilHeatingCostYear1 = heatPumpResults.fossilHeatingCost;
+                     if (usePriceIncreaseLogicForYear1) {
+                        fossilHeatingCostYear1 *= (1 + state.fossilHeatingIncrease / 100);
+                    }
+                    initialGrossSavings += fossilHeatingCostYear1;
+                }
+                
+                const initialNetSavings = state.includeFinancing ? initialGrossSavings - annualFinancingCost : initialGrossSavings;
+
+                if (initialNetSavings <= 0 && !state.includePriceIncrease) {
+                    return { yearsToPayback: Infinity, chartData: [], initialNetSavings, initialGrossSavings };
+                }
+
+                for (let year = 0; year < maxYears; year++) {
+                    const usePriceIncreaseLogic = state.includePriceIncrease && !forceNoPriceIncrease;
+                    const yearMultiplier = usePriceIncreaseLogic ? year + 1 : 1;
+                    let grossSavingsThisYear = 0;
+
+                    if (usePV) {
+                        grossSavingsThisYear += (pvSavingsOverride !== undefined ? pvSavingsOverride : state.annualSavings);
+                    }
+                    
+                    if (useEMobility && state.mileage > 0) {
+                        const emobilityResults = calculateEMobility(priceOverride);
+                        const increasedFossilCost = emobilityResults.fossilCost * Math.pow(1 + state.fossilVehicleIncrease / 100, yearMultiplier-1);
+                        grossSavingsThisYear += increasedFossilCost;
+                    }
+
+                    if (useHeatPump && (state.gasConsumption > 0 || state.oilConsumption > 0)) {
+                        const heatPumpResults = calculateHeatPump(priceOverride);
+                        const increasedFossilCost = heatPumpResults.fossilHeatingCost * Math.pow(1 + state.fossilHeatingIncrease / 100, yearMultiplier-1);
+                        grossSavingsThisYear += increasedFossilCost;
+                    }
+
+                    const netSavingsThisYear = state.includeFinancing ? (grossSavingsThisYear - annualFinancingCost) : grossSavingsThisYear;
+
+                    if (isNaN(paybackYear) && cumulativeNetSavings + netSavingsThisYear >= investmentCost) {
+                        const remainingCost = investmentCost - cumulativeNetSavings;
+                        if (netSavingsThisYear > 0) {
+                            const fraction = remainingCost / netSavingsThisYear;
+                            paybackYear = year + fraction;
+                        } else {
+                            paybackYear = Infinity;
+                        }
+                    }
+
+                    cumulativeNetSavings += netSavingsThisYear;
+
+                    if (generateChartData) {
+                        chartData.push({ year: year + 1, cumulativeSavings: cumulativeNetSavings });
+                    }
+
+                    if (!isNaN(paybackYear) && generateChartData && chartData.length >= 30) break;
+                    if (!isNaN(paybackYear) && !generateChartData) break;
+                }
+
+                if (isNaN(paybackYear)) paybackYear = Infinity;
+
+                while(generateChartData && chartData.length > 0 && chartData.length < 30) {
+                    const lastDataPoint = chartData[chartData.length - 1];
+                    const lastSavings = chartData.length > 1 ? lastDataPoint.cumulativeSavings - chartData[chartData.length - 2].cumulativeSavings : lastDataPoint.cumulativeSavings;
+                     chartData.push({ year: lastDataPoint.year + 1, cumulativeSavings: lastDataPoint.cumulativeSavings + lastSavings});
+                }
+
+                return { yearsToPayback: paybackYear, chartData: chartData, initialNetSavings, initialGrossSavings };
+            };
+
+            const getDynamicPaybackLabel = () => {
+                const parts = [];
+                if (state.totalCost > 0) parts.push('Photovoltaiksystem');
+                if (state.heatPumpSystemCost > 0) parts.push('Heizsystem');
+                if (parts.length === 0) return 'Amortisationszeit';
+                return `Amortisationszeit (${parts.join(' & ')})`;
+            };
+
+            const updateUI = () => {
+                // --- Auto-calculation Step ---
+                if (!state.isEvConsumptionManual) {
+                    state.evKwhConsumption = (state.mileage / 100) * CONSTANTS.EV_CONSUMPTION_100KM_DEFAULT;
+                } else {
+                    state.mileage = (state.evKwhConsumption / CONSTANTS.EV_CONSUMPTION_100KM_DEFAULT) * 100;
+                }
+                const { calculatedElectricityDemand } = calculateHeatPump();
+                if (!state.isHpConsumptionManual) {
+                    state.heatPumpKwhConsumption = calculatedElectricityDemand;
+                } else {
+                    let cop = (state.plannedHeatPump === 'daikin') ? CONSTANTS.COP_DAIKIN : CONSTANTS.COP_STIEBEL;
+                    const heatConsumption = state.heatPumpKwhConsumption * cop;
+                    if (state.currentHeatSource === 'gas') {
+                        state.gasConsumption = heatConsumption / CONSTANTS.KWH_PER_M3_GAS;
+                    } else if (state.currentHeatSource === 'oil') {
+                        state.oilConsumption = heatConsumption / CONSTANTS.KWH_PER_LITER_OIL;
+                    }
+                }
+
+                // --- Update display values of auto-calculated fields if they are not being focused ---
+                const fieldsToUpdate = {
+                    evKwhConsumption: { value: state.evKwhConsumption, unit: 'kWh' },
+                    heatPumpKwhConsumption: { value: state.heatPumpKwhConsumption, unit: 'kWh' },
+                    mileage: { value: state.mileage, unit: 'km' },
+                    gasConsumption: { value: state.gasConsumption, unit: 'm³' },
+                    oilConsumption: { value: state.oilConsumption, unit: 'Liter' }
+                };
+
+                for (const [id, data] of Object.entries(fieldsToUpdate)) {
+                    const inputElement = elements.inputs[id];
+                    if (document.activeElement !== inputElement) {
+                        inputElement.value = data.value > 0 ? `${formatNumber(data.value, 0)} ${data.unit}` : '';
+                    }
+                }
+                
+                // --- Main Calculation Step ---
+                updateLoanAmount();
+                updateFinanceSelectionButtons();
+                updateLoanTermButtons();
+
+                const newMax = Math.max(75000, state.totalCost + state.heatPumpSystemCost);
+                elements.inputs.loanAmount.max = newMax;
+                elements.inputs.loanAmount.value = state.loanAmount;
+
+                const resultsFinancing = calculateFinancing();
+                const resultsEMobility = calculateEMobility();
+                const resultsHeatPump = calculateHeatPump();
+
+                const totalFinancedAmount = (state.financePv ? state.totalCost : 0) + (state.financeHp ? state.heatPumpSystemCost : 0);
+                
+                let pvInterestShare = 0;
+                let hpInterestShare = 0;
+
+                if (state.includeFinancing && state.loanAmount > 0 && totalFinancedAmount > 0) {
+                    const financedPvCost = state.financePv ? state.totalCost : 0;
+                    const financedHpCost = state.financeHp ? state.heatPumpSystemCost : 0;
+                    pvInterestShare = resultsFinancing.annualInterestCost * (financedPvCost / totalFinancedAmount);
+                    hpInterestShare = resultsFinancing.annualInterestCost * (financedHpCost / totalFinancedAmount);
+                }
+                
+                const heatPumpElectricityDemand = state.heatPumpKwhConsumption;
+                const totalDemand = state.householdElectricity + state.evKwhConsumption + heatPumpElectricityDemand;
+                
+                // --- Scenario Calculations (Run if toggled) ---
+                const scenarioPrice = state.useAlternativePrice ? state.alternativePrice : undefined;
+                let scenarioPVSavings = state.annualSavings;
+                let savingsDifference = 0;
+
+                if (scenarioPrice !== undefined && scenarioPrice > 0) {
+                    const costDifference = (totalDemand * scenarioPrice) - (totalDemand * state.effectivePrice);
+                    scenarioPVSavings = state.annualSavings - costDifference;
+                    savingsDifference = scenarioPVSavings - state.annualSavings;
+                    elements.outputs.annualSavingsScenario.textContent = formatCurrency(scenarioPVSavings);
+                    elements.outputs.annualSavingsComparison.classList.remove('hidden');
+                } else {
+                    elements.outputs.annualSavingsComparison.classList.add('hidden');
+                }
+                
+                // --- Base PV block Calculations ---
+                const basePvConfig = {
+                    investmentCost: state.totalCost,
+                    annualFinancingCost: pvInterestShare,
+                    usePV: true,
+                    useEMobility: false,
+                    useHeatPump: false,  
+                    pvSavingsOverride: state.annualSavings
+                };
+                const basePvResults = calculateDynamicAmortization(basePvConfig);
+                const basePvReturnRate = state.totalCost > 0 ? (basePvResults.initialNetSavings / state.totalCost) * 100 : NaN;
+                
+                elements.outputs.paybackYears.textContent = formatYears(basePvResults.yearsToPayback);
+                elements.outputs.returnRate.textContent = formatPercentage(basePvReturnRate);
+
+                // --- Scenario for PV block ---
+                if (scenarioPrice !== undefined && scenarioPrice > 0) {
+                    const scenarioPvConfig = { ...basePvConfig, pvSavingsOverride: scenarioPVSavings };
+                    const scenarioPvResults = calculateDynamicAmortization(scenarioPvConfig);
+                    const scenarioPvReturnRate = state.totalCost > 0 ? (scenarioPvResults.initialNetSavings / state.totalCost) * 100 : NaN;
+                    
+                    elements.outputs.paybackYearsPvScenario.textContent = formatYears(scenarioPvResults.yearsToPayback);
+                    elements.outputs.returnRatePvScenario.textContent = formatPercentage(scenarioPvReturnRate);
+                    elements.outputs.pvScenarioComparison.classList.remove('hidden');
+                    elements.outputs.returnRatePvScenarioComparison.classList.remove('hidden');
+                } else {
+                    elements.outputs.pvScenarioComparison.classList.add('hidden');
+                    elements.outputs.returnRatePvScenarioComparison.classList.add('hidden');
+                }
+                
+                const pvSavingsForDisplay = state.useAlternativePrice && scenarioPrice > 0 ? scenarioPVSavings : state.annualSavings;
+                elements.outputs.pvSavingsDisplay.textContent = formatCurrency(pvSavingsForDisplay);
+                 if (state.useAlternativePrice && scenarioPrice > 0) {
+                    elements.outputs.pvSavingsDifferenceDisplay.textContent = `(${savingsDifference > 0 ? '+' : ''}${formatCurrency(savingsDifference)})`;
+                    elements.outputs.pvSavingsDifferenceDisplay.classList.remove('hidden');
+                } else {
+                    elements.outputs.pvSavingsDifferenceDisplay.classList.add('hidden');
+                }
+                
+                elements.outputs.pvCostDisplay.textContent = formatCurrency(state.totalCost);
+                const showPvFinancing = state.includeFinancing && pvInterestShare > 0;
+                if (showPvFinancing) {
+                    elements.outputs.pvFinancingCostLine.classList.remove('hidden');
+                    elements.outputs.pvNetSavingsLine.classList.remove('hidden');
+                    elements.outputs.pvFinancingCostDisplay.textContent = `${formatCurrency(pvInterestShare)}`;
+                    elements.outputs.pvNetSavingsDisplay.textContent = formatCurrency(basePvResults.initialNetSavings);
+                } else {
+                    elements.outputs.pvFinancingCostLine.classList.add('hidden');
+                    elements.outputs.pvNetSavingsLine.classList.add('hidden');
+                }
+
+                // --- Update E-Mobility & Heat Pump Sections ---
+                const increasedFossilVehicleCost = resultsEMobility.fossilCost * (state.includePriceIncrease ? (1 + state.fossilVehicleIncrease / 100) : 1);
+                const increasedFossilHeatingCost = resultsHeatPump.fossilHeatingCost * (state.includePriceIncrease ? (1 + state.fossilHeatingIncrease / 100) : 1);
+                
+                elements.outputs.loanAmountDisplay.textContent = formatCurrency(state.loanAmount);
+                elements.inputs.loanAmount.value = state.loanAmount;
+                elements.outputs.monthlyRateDisplay.textContent = formatCurrency(resultsFinancing.monthlyRate);
+                elements.outputs.monthlyInterestCostDisplay.textContent = formatCurrency(resultsFinancing.monthlyInterestCost);
+                elements.outputs.effectivePriceDisplay2.textContent = `von ${formatNumber(state.effectivePrice, 2)} €/kWh`;
+                elements.outputs.fossilCost.textContent = formatCurrency(resultsEMobility.fossilCost);
+                elements.outputs.eMobilityCost.textContent = formatCurrency(resultsEMobility.eMobilityCost);
+                elements.outputs.effectivePriceDisplay.textContent = `(${formatNumber(state.effectivePrice, 2)} €/kWh)`;
+                elements.outputs.fossilHeatingCost.textContent = formatCurrency(resultsHeatPump.fossilHeatingCost);
+                elements.outputs.heatPumpCost.textContent = formatCurrency(resultsHeatPump.heatPumpCost);
+                
+                elements.outputs.evElectricityDisplay.textContent = formatNumber(state.evKwhConsumption, 0) + ' kWh';
+                elements.outputs.heatPumpElectricityDisplay.textContent = formatNumber(heatPumpElectricityDemand, 0) + ' kWh';
+                elements.outputs.totalElectricityDemandDisplay.textContent = formatNumber(totalDemand, 0) + ' kWh';
+
+                elements.outputs.evElectricityContainer.classList.toggle('hidden', state.mileage <= 0 && state.evKwhConsumption <= 0);
+                elements.outputs.heatPumpElectricityContainer.classList.toggle('hidden', (state.gasConsumption <= 0 && state.oilConsumption <= 0 && state.heatPumpKwhConsumption <= 0));
+                
+                const showTotalDemand = state.householdElectricity > 0 || state.mileage > 0 || state.gasConsumption > 0 || state.oilConsumption > 0;
+                elements.outputs.totalDemandContainer.classList.toggle('hidden', !showTotalDemand);
+                
+                if (state.includePriceIncrease && state.fossilVehicleIncrease > 0) {
+                    elements.outputs.fossilCostScenario.textContent = formatCurrency(increasedFossilVehicleCost);
+                    elements.outputs.fossilCostComparison.classList.remove('hidden');
+                } else {
+                    elements.outputs.fossilCostComparison.classList.add('hidden');
+                }
+                elements.outputs.eMobilitySavings.textContent = formatCurrency(resultsEMobility.eMobilitySavings);
+
+                if (state.includePriceIncrease && state.fossilHeatingIncrease > 0) {
+                    elements.outputs.fossilHeatingCostScenario.textContent = formatCurrency(increasedFossilHeatingCost);
+                    elements.outputs.fossilHeatingCostComparison.classList.remove('hidden');
+                } else {
+                    elements.outputs.fossilHeatingCostComparison.classList.add('hidden');
+                }
+                elements.outputs.heatPumpSavings.textContent = formatCurrency(resultsHeatPump.heatPumpSavings);
+
+                // --- TOTAL RESULTS BLOCK ---
+                const totalCombinedCost = state.totalCost + state.heatPumpSystemCost;
+                const totalInterestCost = pvInterestShare + hpInterestShare;
+
+                const totalConfig = {
+                    investmentCost: totalCombinedCost,
+                    annualFinancingCost: totalInterestCost,
+                    usePV: true, 
+                    useEMobility: state.mileage > 0, 
+                    useHeatPump: state.gasConsumption > 0 || state.oilConsumption > 0,
+                    generateChartData: true,
+                    pvSavingsOverride: state.annualSavings
+                };
+
+                const totalResults = calculateDynamicAmortization(totalConfig);
+                let finalResultsForChart = totalResults;
+                const totalNetSavings = totalResults.initialNetSavings;
+                const totalReturnRate = totalCombinedCost > 0 ? (totalNetSavings / totalCombinedCost) * 100 : NaN;
+                
+                const totalResultsBaseline = calculateDynamicAmortization({ ...totalConfig, generateChartData: false, forceNoPriceIncrease: true });
+                const totalReturnRateBaseline = totalCombinedCost > 0 ? (totalResultsBaseline.initialNetSavings / totalCombinedCost) * 100 : NaN;
+
+                if (state.includePriceIncrease && totalCombinedCost > 0) {
+                    elements.outputs.paybackYearsTotal.textContent = formatYears(totalResultsBaseline.yearsToPayback);
+                    elements.outputs.totalReturnRate.textContent = formatPercentage(totalReturnRateBaseline);
+                    elements.outputs.paybackYearsTotalPriceIncreaseValue.textContent = formatYears(totalResults.yearsToPayback);
+                    elements.outputs.totalReturnRatePriceIncreaseValue.textContent = formatPercentage(totalReturnRate);
+                    elements.outputs.paybackYearsTotalPriceIncrease.classList.remove('hidden');
+                    elements.outputs.totalReturnRatePriceIncrease.classList.remove('hidden');
+                } else {
+                    elements.outputs.paybackYearsTotal.textContent = formatYears(totalResults.yearsToPayback);
+                    elements.outputs.totalReturnRate.textContent = formatPercentage(totalReturnRate);
+                    elements.outputs.paybackYearsTotalPriceIncrease.classList.add('hidden');
+                    elements.outputs.totalReturnRatePriceIncrease.classList.add('hidden');
+                }
+
+                elements.outputs.totalGrossSavingsLabel.innerHTML = state.includePriceIncrease ? 'Ersparnis (mit Preissteigerung)' : 'Ersparnis p.a.';
+
+                if (state.totalCost > 0) {
+                    elements.outputs.lineTotalPvCost.classList.remove('hidden');
+                    elements.outputs.totalPvCostDisplay.textContent = formatCurrency(state.totalCost);
+                } else {
+                    elements.outputs.lineTotalPvCost.classList.add('hidden');
+                }
+                if (state.heatPumpSystemCost > 0) {
+                    elements.outputs.lineTotalHpCost.classList.remove('hidden');
+                    elements.outputs.totalHpCostDisplay.textContent = formatCurrency(state.heatPumpSystemCost);
+                } else {
+                    elements.outputs.lineTotalHpCost.classList.add('hidden');
+                }
+                
+                const showTotalFinancing = state.includeFinancing && totalInterestCost > 0;
+                if(showTotalFinancing) {
+                    elements.outputs.financingCostLine.classList.remove('hidden');
+                    elements.outputs.totalNetSavingsLine.classList.remove('hidden');
+                    elements.outputs.financingCostDisplay.textContent = `${formatCurrency(totalInterestCost)}`;
+                    elements.outputs.totalNetSavingsDisplay.textContent = formatCurrency(totalNetSavings);
+                } else {
+                    elements.outputs.financingCostLine.classList.add('hidden');
+                    elements.outputs.totalNetSavingsLine.classList.add('hidden');
+                }
+                
+                
+                if (scenarioPrice !== undefined && scenarioPrice > 0) {
+                    const scenarioTotalConfig = { ...totalConfig, pvSavingsOverride: scenarioPVSavings };
+                    const scenarioTotalResults = calculateDynamicAmortization(scenarioTotalConfig);
+                    finalResultsForChart = scenarioTotalResults;
+                    const scenarioTotalReturnRate = totalCombinedCost > 0 ? (scenarioTotalResults.initialNetSavings / totalCombinedCost) * 100 : NaN;
+                    
+                    // Display scenario for Total box
+                    elements.outputs.paybackYearsTotalScenario.textContent = formatYears(scenarioTotalResults.yearsToPayback);
+                    elements.outputs.returnRateTotalScenario.textContent = formatPercentage(scenarioTotalReturnRate);
+                    elements.outputs.totalScenarioComparison.classList.remove('hidden');
+                    elements.outputs.returnRateTotalScenarioComparison.classList.remove('hidden');
+                } else {
+                    elements.outputs.totalScenarioComparison.classList.add('hidden');
+                    elements.outputs.returnRateTotalScenarioComparison.classList.add('hidden');
+                }
+                
+                elements.outputs.totalGrossSavingsDisplay.textContent = formatCurrency(finalResultsForChart.initialGrossSavings);
+                if (state.useAlternativePrice && scenarioPrice > 0) {
+                    elements.outputs.totalSavingsDifferenceDisplay.textContent = `(${savingsDifference > 0 ? '+' : ''}${formatCurrency(savingsDifference)})`;
+                    elements.outputs.totalSavingsDifferenceDisplay.classList.remove('hidden');
+                } else {
+                    elements.outputs.totalSavingsDifferenceDisplay.classList.add('hidden');
+                }
+
+                const pvSavingsForBottomBreakdown = state.useAlternativePrice && scenarioPrice > 0 ? scenarioPVSavings : state.annualSavings;
+                elements.outputs.breakdownSavingsPv.textContent = formatCurrency(pvSavingsForBottomBreakdown);
+                if (state.useAlternativePrice && scenarioPrice > 0) {
+                    elements.outputs.breakdownSavingsPvDifferenceDisplay.textContent = `(${savingsDifference > 0 ? '+' : ''}${formatCurrency(savingsDifference)})`;
+                    elements.outputs.breakdownSavingsPvDifferenceDisplay.classList.remove('hidden');
+                } else {
+                    elements.outputs.breakdownSavingsPvDifferenceDisplay.classList.add('hidden');
+                }
+                elements.outputs.breakdownSavingsEmobility.textContent = formatCurrency(increasedFossilVehicleCost);
+                elements.outputs.breakdownSavingsHp.textContent = formatCurrency(increasedFossilHeatingCost);
+                
+                elements.outputs.paybackTotalLabel.textContent = getDynamicPaybackLabel();
+                
+                elements.outputs.breakdownLinePv.style.display = state.annualSavings > 0 ? 'block' : 'none';
+                elements.outputs.breakdownLineEmobility.style.display = state.mileage > 0 ? 'block' : 'none';
+                elements.outputs.breakdownLineHp.style.display = (state.gasConsumption > 0 || state.oilConsumption > 0) ? 'block' : 'none';
+                
+                if (state.useAlternativePrice && state.alternativePrice > 0) {
+                      const scenarioEMobility = calculateEMobility(state.alternativePrice);
+                      const scenarioHeatPump = calculateHeatPump(state.alternativePrice);
+
+                      elements.outputs.eMobilityCostScenario.textContent = formatCurrency(scenarioEMobility.eMobilityCost);
+                      elements.outputs.eMobilityCostComparison.classList.remove('hidden');
+                      elements.outputs.eMobilitySavingsComparison.classList.add('hidden');
+                      
+                      elements.outputs.heatPumpCostScenario.textContent = formatCurrency(scenarioHeatPump.heatPumpCost);
+                      elements.outputs.heatPumpCostComparison.classList.remove('hidden');
+                      elements.outputs.heatPumpSavingsComparison.classList.add('hidden');
+                } else {
+                    elements.outputs.eMobilityCostComparison.classList.add('hidden');
+                    elements.outputs.eMobilitySavingsComparison.classList.add('hidden');
+                    elements.outputs.heatPumpCostComparison.classList.add('hidden');
+                    elements.outputs.heatPumpSavingsComparison.classList.add('hidden');
+                }
+
+
+                // --- Chart Update ---
+                const chartPaybackYears = finalResultsForChart.yearsToPayback;
+                elements.outputs.chartTitle.textContent = (chartPaybackYears > 0 && isFinite(chartPaybackYears)) ? `Investition nach ${formatYears(chartPaybackYears)} wieder eingespielt (Amortisation)` : 'Visualisierung der Amortisation';
+                updateChart(finalResultsForChart.chartData, totalCombinedCost, chartPaybackYears);
+            };
+            
+
+            const updateChart = (data, totalCost, yearsToPayback) => {
+                if (!elements.chart.canvas) return;
+                const ctx = elements.chart.canvas.getContext('2d');
+                if (!ctx) return;
+
+                if (!data || data.length === 0) data = [{year: 0, cumulativeSavings: 0}];
+
+                const years = data.map(item => item.year);
+                const cumulativeSavings = data.map(item => item.cumulativeSavings);
+                const paybackIndex = (yearsToPayback > 0 && isFinite(yearsToPayback)) ? Math.ceil(yearsToPayback) : -1;
+
+                const savingsBeforePayback = cumulativeSavings.map((val, i) => i <= paybackIndex ? val : null);
+                const savingsAfterPayback = cumulativeSavings.map((val, i) => i >= paybackIndex ? val : null);
+                
+                // Create gradient fills for the chart areas
+                const beforeGradient = ctx.createLinearGradient(0, 0, 0, 300);
+                beforeGradient.addColorStop(0, isDarkMode() ? 'rgba(56, 189, 248, 0.4)' : 'rgba(14, 165, 233, 0.4)');
+                beforeGradient.addColorStop(1, isDarkMode() ? 'rgba(56, 189, 248, 0.05)' : 'rgba(14, 165, 233, 0.05)');
+
+                const afterGradient = ctx.createLinearGradient(0, 0, 0, 300);
+                afterGradient.addColorStop(0, isDarkMode() ? 'rgba(74, 222, 128, 0.4)' : 'rgba(34, 197, 94, 0.4)');
+                afterGradient.addColorStop(1, isDarkMode() ? 'rgba(74, 222, 128, 0.05)' : 'rgba(34, 197, 94, 0.05)');
+
+                const chartColors = isDarkMode() ? {
+                    beforeLine: 'rgba(56, 189, 248, 1)', afterLine: 'rgba(74, 222, 128, 1)',
+                    beforeBg: beforeGradient, afterBg: afterGradient,
+                    costLineColor: 'rgba(248, 113, 113, 0.8)', gridColor: 'rgba(255, 255, 255, 0.1)',
+                    labelColor: '#9ca3af', pointHoverColor: '#ffffff'
+                } : {
+                    beforeLine: 'rgba(14, 165, 233, 1)', afterLine: 'rgba(34, 197, 94, 1)',
+                    beforeBg: beforeGradient, afterBg: afterGradient,
+                    costLineColor: 'rgba(239, 68, 68, 0.8)', gridColor: 'rgba(0, 0, 0, 0.1)',
+                    labelColor: '#4b5563', pointHoverColor: '#000000'
+                };
+                
+                const annotation = (paybackIndex !== -1 && isFinite(yearsToPayback)) ? {
+                    line1: {
+                        type: 'line', xMin: yearsToPayback, xMax: yearsToPayback,
+                        borderColor: chartColors.afterLine, borderWidth: 2, borderDash: [6, 6],
+                        label: {
+                            content: `Amortisation`,
+                            position: 'start',
+                            backgroundColor: isDarkMode() ? 'rgba(34, 197, 94, 0.2)' : 'rgba(236, 253, 245, 1)',
+                            color: chartColors.afterLine,
+                            font: { weight: 'bold' }, padding: 6, borderRadius: 6, yAdjust: -15,
+                        }
+                    }
+                } : {};
+
+                if (elements.chart.instance) {
+                    elements.chart.instance.destroy();
+                }
+
+                elements.chart.instance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: years,
+                        datasets: [
+                            { 
+                                label: 'Einsparungen', 
+                                data: savingsBeforePayback, 
+                                borderColor: chartColors.beforeLine, 
+                                backgroundColor: chartColors.beforeBg, 
+                                fill: true, 
+                                tension: 0.4, 
+                                pointRadius: 2,
+                                pointBackgroundColor: chartColors.beforeLine,
+                                pointHoverRadius: 6,
+                                pointHoverBackgroundColor: chartColors.pointHoverColor,
+                                pointHoverBorderColor: chartColors.beforeLine
+                            },
+                            { 
+                                label: 'Gewinn', 
+                                data: savingsAfterPayback, 
+                                borderColor: chartColors.afterLine, 
+                                backgroundColor: chartColors.afterBg, 
+                                fill: true, 
+                                tension: 0.4, 
+                                pointRadius: 2,
+                                pointBackgroundColor: chartColors.afterLine,
+                                pointHoverRadius: 6,
+                                pointHoverBackgroundColor: chartColors.pointHoverColor,
+                                pointHoverBorderColor: chartColors.afterLine
+                            },
+                            { 
+                                label: 'Gesamtinvestition', 
+                                data: Array(years.length).fill(totalCost), 
+                                borderColor: chartColors.costLineColor, 
+                                borderDash: [5, 5], 
+                                borderWidth: 2,
+                                fill: false, 
+                                pointRadius: 0 
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index',
+                        },
+                        scales: {
+                            x: { 
+                                title: { display: true, text: 'Jahr', color: chartColors.labelColor, font: {size: 14} }, 
+                                ticks: { color: chartColors.labelColor }, 
+                                grid: { color: chartColors.gridColor }
+                            },
+                            y: { 
+                                title: { display: true, text: 'Investition (€)', color: chartColors.labelColor, font: {size: 14} }, 
+                                ticks: { 
+                                    color: chartColors.labelColor,
+                                    callback: function(value) {
+                                        return formatCurrency(value);
+                                    }
+                                }, 
+                                grid: { color: chartColors.gridColor }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                backgroundColor: isDarkMode() ? 'rgba(31, 41, 55, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+                                titleColor: isDarkMode() ? '#e5e7eb' : '#1f2937',
+                                bodyColor: isDarkMode() ? '#d1d5db' : '#374151',
+                                borderColor: isDarkMode() ? '#4b5563' : '#e5e7eb',
+                                borderWidth: 1,
+                                padding: 10,
+                                callbacks: {
+                                    title: (context) => `Jahr ${context[0].label}`,
+                                    label: (context) => {
+                                        const datasetLabel = context.dataset.label || '';
+                                        if (datasetLabel === 'Gesamtinvestition') {
+                                            return ` Investition: ${formatCurrency(context.parsed.y)}`;
+                                        }
+
+                                        const cumulative = context.parsed.y;
+                                        const previousCumulative = context.dataIndex > 0 ? (context.chart.data.datasets[context.datasetIndex].data[context.dataIndex - 1] || 0) : 0;
+                                        const annual = cumulative - previousCumulative;
+
+                                        let label = ` Kumulativ: ${formatCurrency(cumulative)}`;
+                                        if(context.dataIndex > 0) {
+                                            label += ` (Jährlich: ${formatCurrency(annual)})`;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            },
+                            legend: { 
+                                labels: { 
+                                    color: chartColors.labelColor,
+                                    font: {size: 14},
+                                    filter: item => item.text !== 'Einsparungen' 
+                                }
+                            },
+                            annotation: { 
+                                annotations: annotation 
+                            }
+                        }
+                    }
+                });
+            };
+
+            const resetApp = () => {
+                document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+                    if(input.id !== 'effectiveAnnualInterestRate') {
+                        input.value = '';
+                    } else {
+                        input.value = '4,29 %'
+                    }
+                });
+                
+                elements.inputs.loanAmount.value = 0;
+                elements.inputs.fossilVehicleIncrease.value = "0";
+                elements.inputs.fossilHeatingIncrease.value = "0";
+                elements.outputs.vehicleIncreaseDisplay.textContent = formatPercentage(0);
+                elements.outputs.heatingIncreaseDisplay.textContent = formatPercentage(0);
+                
+                document.getElementById('fuel-petrol').checked = true;
+                document.getElementById('heat-gas').checked = true;
+                document.getElementById('heat-daikin').checked = true;
+                elements.toggles.includeFinancingToggle.checked = false;
+                elements.toggles.includePriceIncreaseToggle.dispatchEvent(new Event('change'));
+                elements.toggles.includePriceIncreaseToggle.checked = false;
+                elements.toggles.useAlternativePriceToggle.checked = false;
+                elements.toggles.useAlternativePriceToggle.dispatchEvent(new Event('change'));
+                
+                Object.keys(state).forEach(key => {
+                    const defaultValue = {
+                        loanAmount: 0, effectiveAnnualInterestRate: 4.29, loanTermMonths: 180,
+                        fossilVehicleIncrease: 0,
+                        fossilHeatingIncrease: 0,
+                        selectedFuelType: 'petrol', currentHeatSource: 'gas', plannedHeatPump: 'daikin',
+                        includeFinancing: false, includePriceIncrease: false,
+                        financePv: true, financeHp: true,
+                        isLoanAmountManual: false, isEvConsumptionManual: false,
+                        isHpConsumptionManual: false,
+                        useAlternativePrice: false, alternativePrice: 0
+                    };
+                    state[key] = defaultValue[key] || 0;
+                });
+                
+                elements.inputs.loanAmount.max = 75000;
+                
+                updateUI();
+            };
+
+            // --- Save/Load Functionality ---
+            const renderSavedCalculations = () => {
+                elements.save.listContainer.innerHTML = '';
+                if (savedCalculations.length === 0) {
+                    elements.save.listContainer.innerHTML = `<p class="text-center text-sm text-gray-500 dark:text-gray-400">Noch keine Berechnungen gespeichert.</p>`;
+                    return;
+                }
+
+                savedCalculations.forEach(calc => {
+                    const paybackTime = calc.results.totalYearsToPayback;
+                    const card = document.createElement('div');
+                    card.className = "bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 flex justify-between items-center";
+                    card.innerHTML = `
+                        <div>
+                            <p class="font-bold text-gray-800 dark:text-white">${calc.name}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Amortisation: ${formatYears(paybackTime)}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Investition: ${formatCurrency(calc.results.totalCombinedCost)}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button data-id="${calc.id}" class="pdf-export-btn bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-3 rounded-md transition-colors text-sm flex items-center gap-1">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm6 10a.75.75 0 000-1.5H7.5a.75.75 0 000 1.5H10zM7.5 7.75a.75.75 0 01.75-.75h5a.75.75 0 010 1.5h-5a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg>
+                                PDF
+                            </button>
+                            <button data-id="${calc.id}" class="share-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded-md transition-colors text-sm flex items-center gap-1">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                  <path d="M12.25 4.25a.75.75 0 01.75.75v2.5a.75.75 0 01-1.5 0v-2a.25.25 0 00-.25-.25H8.75a.25.25 0 00-.25.25v7.5a.25.25 0 00.25.25h2a.75.75 0 010 1.5h-2A1.75 1.75 0 017 14.25v-7.5A1.75 1.75 0 018.75 5h2.5a1.75 1.75 0 011.75 1.75v2a.75.75 0 011.5 0v-2.5a.75.75 0 01-.75-.75z" />
+                                  <path d="M14.25 7.25a.75.75 0 01.75-.75h2a.75.75 0 01.75.75v2.5a.75.75 0 01-1.5 0V8.31l-4.72 4.72a.75.75 0 11-1.06-1.06L15.69 6.5h-1.44a.75.75 0 01-.75-.75z" />
+                                </svg>
+                                Teilen
+                            </button>
+                             <button data-id="${calc.id}" class="load-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-3 rounded-md transition-colors text-sm flex items-center gap-1">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 01.75.75v6.59l1.97-1.97a.75.75 0 111.06 1.06l-3.25 3.25a.75.75 0 01-1.06 0L8.22 8.68a.75.75 0 111.06-1.06l1.97 1.97V2.75A.75.75 0 0110 2z" /><path d="M5.05 14.45A.75.75 0 016 14.95v-2.5h8v2.5a.75.75 0 01-1.5 0v-1h-5v1a.75.75 0 01-.95.7z" /></svg>
+                                Laden
+                            </button>
+                            <button data-id="${calc.id}" class="delete-btn bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-md transition-colors text-sm flex items-center gap-1">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.046a12.705 12.705 0 011.724 0l.149.046a.75.75 0 00.23-1.482A12.91 12.91 0 006 4.193v-.443A1.25 1.25 0 017.25 2.5h5.5A1.25 1.25 0 0114 3.75v.443c.795.077 1.58.22 2.365.468a.75.75 0 10.23-1.482l-.149-.046a12.705 12.705 0 01-1.724 0l-.149.046a.75.75 0 00-.23 1.482A12.91 12.91 0 0014 4.193v-.443A2.75 2.75 0 0011.25 1h-2.5zM10 6a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5A.75.75 0 0110 6zM3.832 7.538a.75.75 0 01.727.02l.006.004A11.226 11.226 0 0110 8.25c.847 0 1.673-.093 2.474-.274a.75.75 0 01.754.713 12.727 12.727 0 002.662 2.446l.23.161a.75.75 0 11-.848 1.21l-.23-.16a11.226 11.226 0 01-2.57-2.155 11.18 11.18 0 01-1.25.13 11.18 11.18 0 01-1.249-.13 11.226 11.226 0 01-2.57 2.154l-.23.161a.75.75 0 11-.848-1.21l.23-.16a12.727 12.727 0 002.662-2.446.75.75 0 01-.027-.738z" clip-rule="evenodd" /></svg>
+                                Löschen
+                            </button>
+                        </div>
+                    `;
+                    elements.save.listContainer.appendChild(card);
+                });
+            };
+
+            const saveCalculation = () => {
+                const name = elements.save.nameInput.value.trim();
+                if (!name) { 
+                    showErrorModal('Bitte geben Sie einen Namen für die Berechnung ein.'); 
+                    return; 
+                }
+                
+                const totalCombinedCost = state.totalCost + state.heatPumpSystemCost;
+                const { annualInterestCost } = calculateFinancing();
+                const { yearsToPayback } = calculateDynamicAmortization({
+                     investmentCost: totalCombinedCost,
+                     annualFinancingCost: annualInterestCost,
+                     usePV: true,
+                     useEMobility: state.mileage > 0,
+                     useHeatPump: state.gasConsumption > 0 || state.oilConsumption > 0,
+                });
+
+                const newCalculation = {
+                    id: Date.now(),
+                    name: name,
+                    state: { ...state },
+                    results: {
+                        totalCombinedCost: totalCombinedCost,
+                        totalYearsToPayback: yearsToPayback
+                    }
+                };
+
+                savedCalculations.push(newCalculation);
+                localStorage.setItem('savedCalculations', JSON.stringify(savedCalculations));
+                renderSavedCalculations();
+                elements.save.nameInput.value = '';
+            };
+
+            const loadCalculation = (id) => {
+                const calc = savedCalculations.find(c => c.id === id);
+                if (calc) {
+                    Object.assign(state, calc.state);
+                    
+                    Object.entries(inputConfigs).forEach(([id, config]) => {
+                        const inputElement = elements.inputs[id];
+                        if (inputElement) {
+                             const value = state[id];
+                             if (value || (value === 0 && id !== 'alternativePrice')) {
+                                 inputElement.value = value;
+                                 inputElement.dispatchEvent(new Event('blur'));
+                             } else {
+                                 inputElement.value = '';
+                             }
+                        }
+                    });
+
+                    const newTotal = state.totalCost + state.heatPumpSystemCost;
+                    const newMax = Math.max(75000, newTotal);
+                    elements.inputs.loanAmount.max = newMax;
+                    
+                    elements.inputs.fossilVehicleIncrease.value = state.fossilVehicleIncrease;
+                    elements.outputs.vehicleIncreaseDisplay.textContent = formatPercentage(state.fossilVehicleIncrease);
+                    elements.inputs.fossilHeatingIncrease.value = state.fossilHeatingIncrease;
+                    elements.outputs.heatingIncreaseDisplay.textContent = formatPercentage(state.fossilHeatingIncrease);
+
+                    elements.toggles.includeFinancingToggle.checked = state.includeFinancing;
+                    elements.toggles.includePriceIncreaseToggle.checked = state.includePriceIncrease;
+                    elements.toggles.useAlternativePriceToggle.checked = state.useAlternativePrice;
+
+                    // Manually trigger change events for toggles to ensure AlpineJS reacts
+                    elements.toggles.includePriceIncreaseToggle.dispatchEvent(new Event('change'));
+                    elements.toggles.useAlternativePriceToggle.dispatchEvent(new Event('change'));
+
+                    document.querySelector(`input[name="fuel"][value="${state.selectedFuelType}"]`).checked = true;
+                    document.querySelector(`input[name="currentHeatSource"][value="${state.currentHeatSource}"]`).checked = true;
+                    document.querySelector(`input[name="plannedHeatPump"][value="${state.plannedHeatPump}"]`).checked = true;
+                    updateUI();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+
+            const deleteCalculation = (id) => {
+                savedCalculations = savedCalculations.filter(c => c.id !== id);
+                localStorage.setItem('savedCalculations', JSON.stringify(savedCalculations));
+                renderSavedCalculations();
+                elements.modal.deleteModal.classList.add('hidden');
+            };
+
+            const shareCalculation = (id) => {
+                const calc = savedCalculations.find(c => c.id === id);
+                if (!calc) return;
+
+                const dataToShare = {
+                    name: calc.name,
+                    state: calc.state,
+                    results: calc.results
+                };
+
+                const jsonString = JSON.stringify(dataToShare);
+                const base64String = btoa(unescape(encodeURIComponent(jsonString))); // Handle UTF-8 characters
+
+                const url = new URL(window.location.href);
+                url.search = `?data=${base64String}`;
+
+                const shareText = `Hier ist meine Energie-Investitionsrechnung "${calc.name}":\n\n${url.toString()}`;
+
+                const fallbackCopyToClipboard = () => {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = url.toString();
+                    textArea.style.position = 'absolute';
+                    textArea.style.left = '-9999px';
+                    textArea.setAttribute('readonly', '');
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            showErrorModal('Link zur Berechnung in die Zwischenablage kopiert!', 'Kopiert');
+                        } else {
+                             showErrorModal('Fehler beim Kopieren.', 'Fehler');
+                        }
+                    } catch (err) {
+                        console.error('Fallback copy error:', err);
+                        showErrorModal('Fehler beim Kopieren.', 'Fehler');
+                    }
+                    document.body.removeChild(textArea);
+                };
+
+                if (navigator.share) {
+                    navigator.share({
+                        title: `Ergebnis: ${calc.name}`,
+                        text: `Hier ist meine Energie-Investitionsrechnung "${calc.name}"`,
+                        url: url.toString(),
+                    }).catch(() => {
+                        fallbackCopyToClipboard();
+                    });
+                } else {
+                    fallbackCopyToClipboard();
+                }
+            };
+
+            const enterReadOnlyMode = (sharedData) => {
+                // Disable all inputs
+                Object.values(elements.inputs).forEach(input => input.disabled = true);
+                
+                // Disable all radio buttons
+                Object.values(elements.radios).flat().forEach(radio => radio.disabled = true);
+
+                // Disable all toggles
+                Object.values(elements.toggles).forEach(toggle => toggle.disabled = true);
+
+                // Disable all action buttons in financing section
+                document.querySelectorAll('#financeSelectionButtons button, #loanTermButtons button').forEach(button => {
+                    button.disabled = true;
+                    button.classList.add('opacity-50', 'cursor-not-allowed');
+                });
+                
+                // Hide irrelevant sections
+                elements.resetButton.style.display = 'none';
+                elements.bottomResetButton.style.display = 'none';
+                document.getElementById('saveSection').style.display = 'none';
+
+                // Update title
+                document.querySelector('h1').textContent = `Berechnung: ${sharedData.name}`;
+
+                // Force open all collapsible sections
+                document.querySelectorAll('section[x-data]').forEach(section => {
+                    try {
+                        section.__x.data.open = true;
+                    } catch (e) {
+                        console.warn('Could not open Alpine.js section programmatically.');
+                    }
+                });
+            };
+            
+            const generatePDF = async (id) => {
+                 let calcData;
+                 if (id) {
+                     calcData = savedCalculations.find(c => c.id === id);
+                     if (!calcData) {
+                         showErrorModal('Berechnung zum Erstellen des PDFs nicht gefunden.');
+                         return;
+                     }
+                     // Temporarily load the state for UI rendering
+                     const currentState = JSON.parse(JSON.stringify(state));
+                     Object.assign(state, calcData.state);
+                     updateUI();
+                     await new Promise(resolve => setTimeout(resolve, 500)); // wait for re-render
+                 } else {
+                     calcData = {
+                         name: "Aktuelle Berechnung",
+                         state: state,
+                         results: {} // Results will be calculated on the fly
+                     };
+                 }
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFont("Helvetica", "bold");
+                doc.setFontSize(22);
+                doc.text("Energie-Investitionsrechnung", 105, 20, { align: "center" });
+
+                doc.setFontSize(16);
+                doc.text(`Zusammenfassung für: ${calcData.name}`, 105, 30, { align: "center" });
+                doc.setLineWidth(0.5);
+                doc.line(20, 35, 190, 35);
+
+                let yPos = 45;
+                const addLine = (label, value) => {
+                    if (value && value !== '--' && value !== '0' && value !== '0,00 €' && value !== '0 kWh' && value !== '0 m³' && value !== '0 Liter') {
+                        doc.setFont("Helvetica", "bold");
+                        doc.text(label, 20, yPos);
+                        doc.setFont("Helvetica", "normal");
+                        doc.text(String(value), 190, yPos, { align: "right" });
+                        yPos += 8;
+                    }
+                };
+                
+                doc.setFontSize(14);
+                doc.setFont("Helvetica", "bold");
+                doc.text("Ihre Eingaben", 20, yPos);
+                yPos += 10;
+                doc.setFontSize(11);
+
+                addLine("Investitionskosten PV:", formatCurrency(calcData.state.totalCost));
+                addLine("Investitionskosten Heizsystem:", formatCurrency(calcData.state.heatPumpSystemCost));
+                addLine("Jährliche Ersparnis Strom:", formatCurrency(calcData.state.annualSavings));
+                addLine("Effektiver Strompreis:", `${formatNumber(calcData.state.effectivePrice, 2)} €/kWh`);
+                
+                if (calcData.state.householdElectricity > 0) addLine("Haushaltsstrom:", `${formatNumber(calcData.state.householdElectricity)} kWh`);
+                if (calcData.state.mileage > 0) addLine("Jährliche Laufleistung:", `${formatNumber(calcData.state.mileage)} km`);
+                if (calcData.state.gasConsumption > 0) addLine("Gasverbrauch:", `${formatNumber(calcData.state.gasConsumption)} m³`);
+                if (calcData.state.oilConsumption > 0) addLine("Heizölverbrauch:", `${formatNumber(calcData.state.oilConsumption)} Liter`);
+
+                yPos += 5;
+                doc.setLineWidth(0.2);
+                doc.line(20, yPos, 190, yPos);
+                yPos += 15;
+                
+                doc.setFontSize(14);
+                doc.setFont("Helvetica", "bold");
+                doc.text("Ergebnisse", 20, yPos);
+                yPos += 10;
+                doc.setFontSize(11);
+                
+                const tempState = calcData.state;
+                const totalCombinedCost = tempState.totalCost + tempState.heatPumpSystemCost;
+                 const { annualInterestCost } = calculateFinancing(); // Uses current state, but needs calc's state
+                const totalResults = calculateDynamicAmortization({
+                     investmentCost: totalCombinedCost,
+                     annualFinancingCost: annualInterestCost,
+                     usePV: true,
+                     useEMobility: tempState.mileage > 0,
+                     useHeatPump: tempState.gasConsumption > 0 || tempState.oilConsumption > 0,
+                });
+                 const totalReturnRate = totalCombinedCost > 0 ? (totalResults.initialNetSavings / totalCombinedCost) * 100 : NaN;
+
+
+                addLine("Gesamtinvestition:", formatCurrency(totalCombinedCost));
+                addLine("Gesamte jährliche Ersparnis:", formatCurrency(totalResults.initialGrossSavings));
+                addLine("Amortisationszeit (Gesamt):", formatYears(totalResults.yearsToPayback));
+                addLine("Rendite (Gesamt):", formatPercentage(totalReturnRate));
+
+                yPos += 10;
+                
+                doc.setFontSize(14);
+                doc.setFont("Helvetica", "bold");
+                doc.text("Amortisationsverlauf", 20, yPos);
+                yPos += 5;
+
+                try {
+                    const canvas = await html2canvas(elements.chart.canvas, { backgroundColor: isDarkMode() ? '#1f2937' : '#ffffff' });
+                    const imgData = canvas.toDataURL('image/png');
+                    const imgProps = doc.getImageProperties(imgData);
+                    const pdfWidth = 170;
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    
+                    if (yPos + pdfHeight > 280) { 
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    doc.addImage(imgData, 'PNG', 20, yPos, pdfWidth, pdfHeight);
+                } catch(e) {
+                    console.error("Error generating chart for PDF:", e);
+                    doc.setFont("Helvetica", "normal");
+                    doc.setTextColor(255,0,0);
+                    doc.text("Grafik konnte nicht erzeugt werden.", 20, yPos + 10);
+                    doc.setTextColor(0,0,0);
+                }
+
+                doc.save(`Energie-Investitionsrechnung-${calcData.name}.pdf`);
+                
+                // If we loaded a different state, restore the original one
+                if(id) {
+                    Object.assign(state, currentState);
+                    updateUI();
+                }
+            };
+            
+            const setupEventListeners = () => {
+                Object.entries(inputConfigs).forEach(([id, config]) => {
+                    const inputElement = elements.inputs[id];
+                    if (!inputElement) return;
+
+                    inputElement.addEventListener('focus', (e) => {
+                        const value = parseNumber(e.target.value);
+                        if (value > 0 || (e.target.value.includes(',') && value === 0)) {
+                            if (config.decimals > 0) {
+                                e.target.value = formatNumber(value, config.decimals).replace('.',',');
+                            } else {
+                                e.target.value = formatNumber(value, config.decimals);
+                            }
+                        } else {
+                            e.target.value = '';
+                        }
+                    });
+
+                    inputElement.addEventListener('input', (e) => {
+                        const { target } = e;
+                        const originalValue = target.value;
+                        const cursorPosition = target.selectionStart;
+
+                        const numericValue = parseNumber(originalValue);
+                        state[id] = isNaN(numericValue) ? 0 : numericValue;
+                        
+                        if (id === 'mileage') state.isEvConsumptionManual = false;
+                        if (id === 'evKwhConsumption') state.isEvConsumptionManual = true;
+                        
+                        if(id === 'gasConsumption' || id === 'oilConsumption' || id === 'plannedHeatPump'){
+                            state.isHpConsumptionManual = false;
+                        }
+                        if(id === 'heatPumpKwhConsumption'){
+                            state.isHpConsumptionManual = true;
+                        }
+                        
+                        if(id === 'gasConsumption' && parseNumber(e.target.value) > 0) {
+                            state.oilConsumption = 0;
+                            elements.inputs.oilConsumption.value = '';
+                            elements.radios.currentHeatSource[0].checked = true;
+                            state.currentHeatSource = 'gas';
+                        }
+                         if(id === 'oilConsumption' && parseNumber(e.target.value) > 0) {
+                            state.gasConsumption = 0;
+                            elements.inputs.gasConsumption.value = '';
+                            elements.radios.currentHeatSource[1].checked = true;
+                            state.currentHeatSource = 'oil';
+                        }
+
+                        if (id === 'totalCost' || id === 'heatPumpSystemCost') {
+                            state.isLoanAmountManual = false;
+                        }
+
+                        // Live formatting for integers
+                        if (config.decimals === 0) {
+                            let digitsOnly = originalValue.replace(/[^\d]/g, '');
+                            let formattedValue = new Intl.NumberFormat('de-DE').format(Number(digitsOnly));
+                            if (digitsOnly === '') formattedValue = '';
+                            
+                            if(originalValue !== formattedValue){
+                                const diff = formattedValue.length - originalValue.length;
+                                target.value = formattedValue;
+                                target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+                            }
+                        }
+                        
+                        updateUI();
+                    });
+
+                    inputElement.addEventListener('blur', (e) => {
+                        const value = parseNumber(e.target.value);
+                        if (value > 0 || (e.target.value.trim() !== '' && !isNaN(value)) ) {
+                             if(config.unit) {
+                                 e.target.value = `${formatNumber(value, config.decimals)} ${config.unit}`;
+                             } else {
+                                 e.target.value = formatNumber(value, config.decimals);
+                             }
+                        } else {
+                            e.target.value = '';
+                        }
+                        // After blurring, we want the other fields to update their formatted value too
+                        updateUI();
+                    });
+                });
+
+                
+                elements.radios.fuelType.forEach(radio => radio.addEventListener('change', (e) => { state.selectedFuelType = e.target.value; updateUI(); }));
+                elements.radios.currentHeatSource.forEach(radio => radio.addEventListener('change', (e) => { 
+                    state.currentHeatSource = e.target.value; 
+                    if(state.isHpConsumptionManual) {
+                        if(e.target.value === 'gas') {
+                            state.oilConsumption = 0;
+                        } else {
+                            state.gasConsumption = 0;
+                        }
+                    }
+                    updateUI();
+                }));
+                elements.radios.plannedHeatPump.forEach(radio => radio.addEventListener('change', (e) => { state.plannedHeatPump = e.target.value; state.isHpConsumptionManual = false; updateUI(); }));
+
+                elements.toggles.includeFinancingToggle.addEventListener('change', e => {
+                    state.includeFinancing = e.target.checked;
+                    updateUI();
+                });
+
+                elements.toggles.includePriceIncreaseToggle.addEventListener('change', e => {
+                    state.includePriceIncrease = e.target.checked;
+                    updateUI();
+                });
+
+                elements.inputs.fossilVehicleIncrease.addEventListener('input', e => {
+                    const value = parseFloat(e.target.value);
+                    state.fossilVehicleIncrease = value;
+                    elements.outputs.vehicleIncreaseDisplay.textContent = formatPercentage(value);
+                    updateUI();
+                });
+
+                elements.inputs.fossilHeatingIncrease.addEventListener('input', e => {
+                    const value = parseFloat(e.target.value);
+                    state.fossilHeatingIncrease = value;
+                    elements.outputs.heatingIncreaseDisplay.textContent = formatPercentage(value);
+                    updateUI();
+                });
+
+                elements.toggles.useAlternativePriceToggle.addEventListener('change', e => {
+                    if (e.target.checked && state.householdElectricity <= 0) {
+                        e.target.checked = false; // Prevent toggle from changing
+                        showErrorModal("Bitte geben Sie zuerst Ihren Haushaltsstrom im Bereich \"Strombedarf\" an, um diese Funktion zu nutzen.");
+                        return; // Stop further execution
+                    }
+
+                    state.useAlternativePrice = e.target.checked;
+                    if(!state.useAlternativePrice){
+                        state.alternativePrice = 0;
+                        elements.inputs.alternativePrice.value = '';
+                        elements.inputs.alternativePrice.dispatchEvent(new Event('blur'));
+                    }
+                    elements.outputs.alternativePriceContainer.classList.toggle('hidden', !state.useAlternativePrice);
+                    updateUI();
+                });
+                
+                elements.modal.closeErrorModal.addEventListener('click', () => {
+                    elements.modal.errorModal.classList.add('hidden');
+                });
+
+
+                elements.financing.loanTermButtons.addEventListener('click', e => {
+                    if (e.target.closest('.action-btn')) {
+                        state.loanTermMonths = parseInt(e.target.closest('.action-btn').dataset.value);
+                        updateUI();
+                    }
+                });
+
+                elements.financing.financeSelectionButtons.addEventListener('click', e => {
+                    if (e.target.closest('.action-btn')) {
+                         const button = e.target.closest('.action-btn');
+                        const value = button.dataset.value;
+                        if (value === 'pv') {
+                            state.financePv = !state.financePv;
+                        } else if (value === 'hp') {
+                            state.financeHp = !state.financeHp;
+                        }
+                        state.isLoanAmountManual = false;
+                        updateUI();
+                    }
+                });
+                
+                elements.inputs.loanAmount.addEventListener('input', e => {
+                     state.loanAmount = parseInt(e.target.value, 10);
+                     state.isLoanAmountManual = true;
+                     updateUI();
+                });
+
+
+                elements.theme.toggle.addEventListener('click', () => {
+                    const isDark = document.documentElement.classList.toggle('dark');
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                    elements.theme.moonIcon.classList.toggle('hidden', isDark);
+                    elements.theme.sunIcon.classList.toggle('hidden', !isDark);
+                    updateUI();
+                });
+                
+                elements.resetButton.addEventListener('click', resetApp);
+                elements.bottomResetButton.addEventListener('click', resetApp);
+                elements.save.saveButton.addEventListener('click', saveCalculation);
+
+                elements.save.listContainer.addEventListener('click', (e) => {
+                    const target = e.target.closest('button');
+                    if (!target) return;
+                    
+                    const id = parseInt(target.dataset.id);
+
+                    if (target.classList.contains('load-btn')) {
+                        loadCalculation(id);
+                    } else if (target.classList.contains('delete-btn')) {
+                        calculationIdToDelete = id;
+                        elements.modal.deleteModal.classList.remove('hidden');
+                    } else if (target.classList.contains('share-btn')) {
+                        shareCalculation(id);
+                    } else if (target.classList.contains('pdf-export-btn')) {
+                        generatePDF(id);
+                    }
+                });
+
+                elements.modal.cancelDelete.addEventListener('click', () => {
+                    elements.modal.deleteModal.classList.add('hidden');
+                    calculationIdToDelete = null;
+                });
+                elements.modal.confirmDelete.addEventListener('click', () => {
+                    if(calculationIdToDelete !== null) {
+                        deleteCalculation(calculationIdToDelete);
+                    }
+                });
+                
+            };
+            
+            // --- Initial Load ---
+            const loadInitialData = () => {
+                 const urlParams = new URLSearchParams(window.location.search);
+                const dataParam = urlParams.get('data');
+
+                const loadDefaultData = () => {
+                     const storedTheme = localStorage.getItem('theme');
+                     const prefersDark = storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                     document.documentElement.classList.toggle('dark', prefersDark);
+                     elements.theme.sunIcon.classList.toggle('hidden', !prefersDark);
+                     elements.theme.moonIcon.classList.toggle('hidden', prefersDark);
+
+                     const storedCalculations = localStorage.getItem('savedCalculations');
+                     if (storedCalculations) {
+                         try {
+                             const parsed = JSON.parse(storedCalculations);
+                             if (Array.isArray(parsed)) {
+                                 savedCalculations = parsed;
+                             }
+                         } catch (e) {
+                             console.error("Fehler beim Laden der gespeicherten Berechnungen:", e);
+                             savedCalculations = [];
+                         }
+                     }
+                     renderSavedCalculations();
+                     elements.inputs.effectiveAnnualInterestRate.value = formatNumber(state.effectiveAnnualInterestRate, 2).replace('.', ',') + " %";
+                     updateUI();
+                     setupEventListeners();
+                };
+
+                if (dataParam) {
+                    try {
+                        const jsonString = decodeURIComponent(atob(dataParam));
+                        const sharedData = JSON.parse(jsonString);
+                        
+                        Object.assign(state, sharedData.state);
+                        
+                        const storedTheme = localStorage.getItem('theme');
+                        const prefersDark = storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                        document.documentElement.classList.toggle('dark', prefersDark);
+                        elements.theme.sunIcon.classList.toggle('hidden', !prefersDark);
+                        elements.theme.moonIcon.classList.toggle('hidden', prefersDark);
+                        
+                        updateUI();
+                        enterReadOnlyMode(sharedData);
+
+                    } catch (e) {
+                        console.error("Fehler beim Laden der geteilten Daten:", e);
+                        loadDefaultData();
+                    }
+                } else {
+                    loadDefaultData();
+                }
+            };
+
+            loadInitialData();
+        });
+    </script>
+</body>
+</html>
